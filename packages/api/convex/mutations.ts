@@ -619,7 +619,7 @@ export const mine = internalMutation({
           (boost: any) => boost?.boostId === botUuid?.uuid,
         );
 
-        console.log("Should stop the mining session");
+        // console.log("Should stop the mining session");
 
         await db.patch(user._id, {
           mineActive: false,
