@@ -37,6 +37,8 @@ export default function Home() {
 
       if(session && session?.isOnboarded) {
         router.replace("/dashboard");
+      } else {
+        router.replace("/authentication");
       }
     }
   }, [isClient]);
