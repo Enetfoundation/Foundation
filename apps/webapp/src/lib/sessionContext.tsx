@@ -55,9 +55,10 @@ export default function SessionProvider({ children }: SessionProps) {
             setSession(session);
             setSessionLoading(false);
             if (!session?.isOnboarded) {
-              router.replace("/")
+              // router.replace("/")
             }
-          }          return;
+          }
+          // return;
         } else {
           const _session = localStorage.getItem("fd-session");
           if (_session && !pathname.includes("authentication")) {
