@@ -100,7 +100,7 @@ export default function Home() {
                 // Set session before pushing
                 localStorage.setItem(
                   "fd-session",
-                  JSON.stringify({ userId: userId, isOnboarded: false, isTgUser: true }),
+                  JSON.stringify({ userId: userId, isOnboarded: true, isTgUser: true }),
                 );
                 router.push(`/dashboard?userId=${userId}`);
               } catch (err: any) {

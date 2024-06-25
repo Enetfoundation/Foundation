@@ -77,7 +77,7 @@ export const storeEmail = internalMutation({
 
 
 export const storeTgDetails = internalMutation({
-  args: { type: v.union(v.literal("tg"), v.literal("twitter"), v.literal("google")), tgInitData: v.string() },
+  args: { type: v.union(v.literal("tg"), v.literal("twitter"), v.literal("google")), tgInitData: v.string(), referreCode: v.optional(v.string()) },
   handler: async (ctx, args) => {
         console.log(args.tgInitData, ":::initData to split on");
     // Decode the user object

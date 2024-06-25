@@ -32,6 +32,7 @@ export const initializeNewUser = action({
       const userId: Id<"user"> = await ctx.runMutation(internal.mutations.storeTgDetails, {
         type: args.type!,
         tgInitData: args.tgInitData!,
+        referreCode: args.referreeCode,
       });
       return userId;
 

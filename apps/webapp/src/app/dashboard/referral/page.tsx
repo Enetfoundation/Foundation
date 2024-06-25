@@ -17,6 +17,7 @@ function Referral() {
 
   const userId = searchParams.get("userId");
   const refCode = searchParams.get("refCode");
+  const refCount = searchParams.get("refCount");
 
   const referrals: Doc<"activity">[] | undefined = useQuery(
     api.queries.getOnlyXpHistory,
@@ -47,7 +48,7 @@ function Referral() {
           <div className="flex items-center justify-between pb-3 text-base">
             <h4 className="text-xl">Referrals</h4>{" "}
             <div className="rounded-lg bg-[#f5f5f5] px-5 py-2 text-lg font-semibold text-black dark:bg-[#131721] dark:text-white">
-              {referrals ? referrals.length : 0}
+              {refCount ? Number(refCount) : 0}
             </div>
           </div>
           {

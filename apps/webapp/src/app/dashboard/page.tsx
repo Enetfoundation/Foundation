@@ -102,8 +102,8 @@ const Dashboard = () => {
         <Link
           href={
             userId
-              ? `/dashboard/referral?userId=${userId}&refCode=${userDetail?.referralCode}`
-              : `/dashboard/referral?refCode=${userDetail?.referralCode}`
+              ? `/dashboard/referral?userId=${userId}&refCode=${userDetail?.referralCode}&refCount=${userDetail?.referralCount}`
+              : `/dashboard/referral?refCode=${userDetail?.referralCode}&refCount=${userDetail?.referralCount}`
           }
           className="referral-container"
         >
