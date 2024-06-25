@@ -21,6 +21,7 @@ import { IoCopyOutline } from "react-icons/io5";
 
 import { api } from "@acme/api/convex/_generated/api";
 import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
+import WebApp from "@twa-dev/sdk";
 
 const ShareLink: FC<{ referralCode: string | undefined }> = ({ referralCode }) => {
   const { toast } = useToast();
@@ -36,8 +37,9 @@ const ShareLink: FC<{ referralCode: string | undefined }> = ({ referralCode }) =
     if (referralCode) {
       setRefLink(
         process.env.NODE_ENV === "development"
-          ? `http://localhost:3000?ref=${referralCode}`
-          : `https://app.enetfoundation.com?ref=${referralCode}`,
+          ? `http://localhost:3000?ref=${referralCode}` :
+          (typeof window !== "undefined" && "WebApp" in window.Telegram && !!WebApp.initData.length) ? `https://t.me/FoundationMinerBot/foundation?ref=${referralCode}`
+            : `https://app.enetfoundation.com?ref=${referralCode}`,
       );
     }
   }, [referralCode]);

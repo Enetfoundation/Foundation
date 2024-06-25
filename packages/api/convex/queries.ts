@@ -195,7 +195,7 @@ export const getOnlyXpHistory = query({
         .order("desc")
         .take(25)) ?? [];
 
-    return referrals.filter((ref) => !ref?.extra?.includes("%"));
+    return referrals.filter((ref) => !ref?.extra?.includes("%") && ref?.message.toLowerCase().includes("joined"));
   },
 });
 

@@ -19,6 +19,7 @@ import { api } from "@acme/api/convex/_generated/api";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader } from "@/components/loader";
 import AdBanner from "@/components/dashboard/AdBanner";
+import WebApp from "@twa-dev/sdk";
 
 export type EventType = Partial<Doc<"events">> & {
   company: Partial<Doc<"company">> & { logoUrl: string };
@@ -40,7 +41,7 @@ const Dashboard = () => {
   // console.log(bottom, top, ":::Bottom Top, size", height, height - top);
 
   // handle tasks cycle
-  const [isLoadingModalVisible, setLoadingModalVisible] = useState(session?.isLoading && typeof userDetail === "undefined"? true : false);
+  const [isLoadingModalVisible, setLoadingModalVisible] = useState(session?.isLoading && typeof userDetail === "undefined" ? true : false);
   // const rewardTaskXpCount = useMutation(api.mutations.rewardTaskXp);
   // const rewardEventXpCount = useMutation(api.mutations.rewardEventXp);
   // const updateEventAction = useMutation(api.mutations.updateEventsForUser);
@@ -55,11 +56,11 @@ const Dashboard = () => {
 
     console.log(typeof userDetail, session, ":::SettingLoader");
 
-    if(userDetail && typeof userDetail !== "undefined" && !session?.isLoading) {
+    if (userDetail && typeof userDetail !== "undefined" && !session?.isLoading) {
       console.log("Session has been updated");
       setLoadingModalVisible(false);
     }
-    
+
   }, [userDetail, session?.isLoading, session])
 
 
@@ -68,8 +69,9 @@ const Dashboard = () => {
       console.log(userDetail?.mineHours, ":::Mine hours");
       setRefLink(
         process.env.NODE_ENV === "development"
-          ? `http://localhost:3000?ref=${userDetail?.referralCode}`
-          : `https://app.enetfoundation.com?ref=${userDetail?.referralCode}`,
+          ? `http://localhost:3000?ref=${userDetail?.referralCode}` :
+          (typeof window !== "undefined" && "WebApp" in window.Telegram && !!WebApp.initData.length) ? `https://t.me/FoundationMinerBot/foundation?ref=${userDetail.referralCode}`
+            : `https://app.enetfoundation.com?ref=${userDetail?.referralCode}`,
       );
     }
   }, [userDetail]);
@@ -100,8 +102,8 @@ const Dashboard = () => {
         <Link
           href={
             userId
-              ? `/dashboard/referral?userId=${userId}`
-              : "/dashboard/referral"
+              ? `/dashboard/referral?userId=${userId}&refCode=${userDetail?.referralCode}`
+              : `/dashboard/referral?refCode=${userDetail?.referralCode}`
           }
           className="referral-container"
         >
