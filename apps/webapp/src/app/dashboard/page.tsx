@@ -71,7 +71,7 @@ const Dashboard = () => {
         process.env.NODE_ENV === "development"
           ? `http://localhost:3000?ref=${userDetail?.referralCode}` :
           (typeof window !== "undefined" && "WebApp" in window.Telegram && !!WebApp.initData.length) ? `https://t.me/FoundationMinerBot/foundation?ref=${userDetail.referralCode}`
-            : `https://app.enetfoundation.com?ref=${userDetail?.referralCode}`,
+            : `https://app.enetfoundation.com?refCode=${userDetail?.referralCode}`,
       );
     }
   }, [userDetail]);
