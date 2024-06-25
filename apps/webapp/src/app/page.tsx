@@ -17,8 +17,11 @@ import { toast } from "@/components/ui/use-toast";
 export default function Home() {
   const router = useRouter();
   const isClient = useClient();
+  const searchParams = useSearchParams();
   const [isCreatingLoading, setIsCreatingLoading] = useState(false);
 
+
+  const refCode = searchParams.get("refCode");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
   useEffect(() => {
 
@@ -90,7 +93,7 @@ export default function Home() {
 
                 const userId = await creatTgUserAccount({
                   email: undefined,
-                  referreeCode: undefined,
+                  referreeCode: refCode ? refCode : undefined,
                   type: "tg",
                   tgInitData: WebApp.initData.toString() ?? WebApp.initDataUnsafe.toString()
                 });
