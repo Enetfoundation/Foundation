@@ -1,6 +1,7 @@
 import { mutationWithAuth } from "@convex-dev/convex-lucia-auth";
 import { ConvexError, v } from "convex/values";
 import { differenceInHours } from "date-fns";
+import { customAlphabet } from "nanoid";
 
 import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
@@ -129,6 +130,9 @@ export const storeTgDetails = internalMutation({
       return previouslyDeleted._id;
     }
 
+
+    const referralCode = generateReferralCode();
+
     // Store email and referral
     const userId = await ctx.db.insert("user", {
       tgUserId: tgUserObject?.id.toString(),
@@ -137,6 +141,7 @@ export const storeTgDetails = internalMutation({
       miningRate: config?.miningCount ?? 2.0,
       mineActive: false,
       referralCount: 0,
+      referralCode: referralCode,
       mineHours: config?.miningHours ?? 6,
       redeemableCount: 0,
       xpCount: config?.xpCount ?? 1000,
@@ -928,3 +933,11 @@ export function activateMultiplier(currentXpCount: number): number | undefined {
     return undefined;
   }
 }
+
+
+const generateReferralCode = (): string => {
+  const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 6);
+  const referralCode = nanoid().toUpperCase();
+  return referralCode;
+};
+
