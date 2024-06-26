@@ -58,6 +58,7 @@ const BoostItems: FC<{
   setIsLoading: (prev: boolean) => void;
 }> = ({ boosts, userDetails, xpPerToken, minimumCost, setIsLoading }) => {
   const { toast } = useToast();
+  const session = useSession();
   const user = userDetails;
 
   // Activate boost mutation
@@ -89,7 +90,7 @@ const BoostItems: FC<{
                     } else {
                       console.log(item, ":::ONBoost clicke", activeBoost);
                       await activateBoost({
-                        userId: userDetails?._id as Id<"user">,
+                        userId: user?._id ?? session?.userId as Id<"user">,
                         boost: { ...item },
                       });
                       setIsLoading(false);
