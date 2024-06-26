@@ -54,13 +54,13 @@ const PlannedTask: FC<{ userId: string | undefined, userDetail: Doc<"user"> | nu
       </div>
       <Multiplier userDetail={userDetail} toggleru={showMultiplier} userId={userId} />
       <TabsContent value="socialXps" className="tasktab-container-content">
-        <Tasks userId={userId} />
+        <Tasks userDetails={userDetail} />
       </TabsContent>
       <TabsContent value="events" className="tasktab-container-content">
-        <Events userId={userId} />
+        <Events userDetails={userDetail} />
       </TabsContent>
       <TabsContent value="boost" className="tasktab-container-content">
-        <Boost userId={userId} />
+        <Boost userDetails={userDetail} />
       </TabsContent>
     </Tabs>
   );

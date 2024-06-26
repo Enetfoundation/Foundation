@@ -17,24 +17,27 @@ import { FaCircleCheck, FaXTwitter } from "react-icons/fa6";
 import { HiMiniUserGroup } from "react-icons/hi2";
 
 import { api } from "@acme/api/convex/_generated/api";
-import { Id } from "@acme/api/convex/_generated/dataModel";
+import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
 
-const Boost: FC<{ userId: string | null }> = ({ userId }) => {
+const Boost: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetails }) => {
   const session = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const appConfig = useQuery(api.queries.getAppConfigForApp);
+  console.log(appConfig, ":::Applications config");
 
   return (
     <div>
-      <Suspense fallback={<Loader color="white" />}>
-        <BoostItems
-          boosts={appConfig?.boosts}
-          userId={(session?.userId ?? userId) as string}
-          xpPerToken={appConfig?.xpPerToken ?? 0}
-          minimumCost={appConfig?.minimumSaleToken ?? 0}
-          setIsLoading={setIsLoading}
-        />
-      </Suspense>
+      {typeof appConfig !== "undefined" && <BoostItems
+        boosts={appConfig?.boosts}
+        userDetails={userDetails}
+        xpPerToken={appConfig?.xpPerToken ?? 0}
+        minimumCost={appConfig?.minimumSaleToken ?? 0}
+        setIsLoading={setIsLoading}
+      />
+      }
+      {
+        typeof appConfig === "undefined" && <Loader color="white" />
+      }
       <Dialog open={isLoading}>
         <DialogContent
           hideCloseBtn
@@ -48,16 +51,14 @@ const Boost: FC<{ userId: string | null }> = ({ userId }) => {
 };
 
 const BoostItems: FC<{
-  boosts: any[] | undefined;
-  userId: string;
+  boosts: Doc<"config">["boosts"] | undefined;
+  userDetails: Doc<'user'> | null | undefined;
   xpPerToken: number;
   minimumCost: number;
   setIsLoading: (prev: boolean) => void;
-}> = ({ boosts, userId, xpPerToken, minimumCost, setIsLoading }) => {
+}> = ({ boosts, userDetails, xpPerToken, minimumCost, setIsLoading }) => {
   const { toast } = useToast();
-  const user = useQuery(api.queries.getUserDetails, {
-    userId: userId as Id<"user">,
-  });
+  const user = userDetails;
 
   // Activate boost mutation
   const activateBoost = useMutation(api.mutations.activateBoost);
@@ -74,9 +75,8 @@ const BoostItems: FC<{
           return (
             <li key={ki} className="dark:bg-primary-dark rounded-xl bg-white">
               <button
-                className={`w-full px-5 py-4 ${
-                  activeBoost?.isActive ? "opacity-30" : ""
-                } block space-y-2`}
+                className={`w-full px-5 py-4 ${activeBoost?.isActive ? "opacity-30" : ""
+                  } block space-y-2`}
                 onClick={async (e) => {
                   try {
                     setIsLoading(true);

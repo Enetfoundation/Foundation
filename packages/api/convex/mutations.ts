@@ -80,7 +80,8 @@ export const storeEmail = internalMutation({
 export const storeTgDetails = internalMutation({
   args: { type: v.union(v.literal("tg"), v.literal("twitter"), v.literal("google")), tgInitData: v.string(), referreCode: v.optional(v.string()) },
   handler: async (ctx, args) => {
-        console.log(args.tgInitData, ":::initData to split on");
+    console.log(args.tgInitData, ":::initData to split on");
+
     // Decode the user object
     const splitString = args.tgInitData.split("&");
     const userSplit = splitString[1].split("=");
@@ -90,14 +91,14 @@ export const storeTgDetails = internalMutation({
 
     const config = await ctx.db.query("config").first();
     // Check if email already exists
-    const existingUsers = await ctx.db
+    const existingUser = await ctx.db
       .query("user")
       .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id))
-      .collect();
+      .unique();
 
     // Checking if the users email already exists without being deleted
     if (
-      existingUsers?.some((user) => user.tgUserId === tgUserObject?.id && !user?.deleted)
+      existingUser && existingUser?.deleted
     ) {
       throw new ConvexError({
         message: "Telegram account already exists",
@@ -150,7 +151,7 @@ export const storeTgDetails = internalMutation({
 
     return userId;
   },
-  
+
 })
 
 export const storeOTPSecret = internalMutation({
@@ -470,44 +471,44 @@ export const updateEventsForUser = mutation({
       await db.patch(userId, {
         eventsJoined: user.eventsJoined
           ? [
-              ...user.eventsJoined,
-              {
-                eventId: event._id,
-                completed: false,
-                actions: event.actions.map((action) => {
-                  if (action.name === actionName) {
-                    return {
-                      completed: true,
-                      link: action.link,
-                      channel: action.channel,
-                      name: action.name,
-                      type: action.type,
-                    };
-                  } else {
-                    return { ...action, completed: false };
-                  }
-                }),
-              },
-            ]
+            ...user.eventsJoined,
+            {
+              eventId: event._id,
+              completed: false,
+              actions: event.actions.map((action) => {
+                if (action.name === actionName) {
+                  return {
+                    completed: true,
+                    link: action.link,
+                    channel: action.channel,
+                    name: action.name,
+                    type: action.type,
+                  };
+                } else {
+                  return { ...action, completed: false };
+                }
+              }),
+            },
+          ]
           : [
-              {
-                eventId: event._id,
-                completed: false,
-                actions: event.actions.map((action) => {
-                  if (action.name === actionName) {
-                    return {
-                      completed: true,
-                      link: action.link,
-                      channel: action.channel,
-                      name: action.name,
-                      type: action.type,
-                    };
-                  } else {
-                    return { ...action, completed: false };
-                  }
-                }),
-              },
-            ],
+            {
+              eventId: event._id,
+              completed: false,
+              actions: event.actions.map((action) => {
+                if (action.name === actionName) {
+                  return {
+                    completed: true,
+                    link: action.link,
+                    channel: action.channel,
+                    name: action.name,
+                    type: action.type,
+                  };
+                } else {
+                  return { ...action, completed: false };
+                }
+              }),
+            },
+          ],
       });
     }
   },
@@ -617,11 +618,11 @@ export const mine = internalMutation({
       } else {
         // Cancel mine and reset also check for active boosts
 
-        const botUuid = config?.boosts?.find(
+        const bot = config?.boosts?.find(
           (boost: any) => boost?.type === "bot",
         );
         const persistBot = user?.boostStatus?.find(
-          (boost: any) => boost?.boostId === botUuid?.uuid,
+          (boost: any) => boost?.boostId === bot?.uuid,
         );
 
         // console.log("Should stop the mining session");
@@ -814,9 +815,9 @@ export const activateBoost = mutation({
         mineHours: config.miningHours + boost.rate,
         boostStatus: user?.boostStatus
           ? [
-              ...(user?.boostStatus ?? []),
-              { boostId: boost?.uuid, isActive: true },
-            ]
+            ...(user?.boostStatus ?? []),
+            { boostId: boost?.uuid, isActive: true },
+          ]
           : [{ boostId: boost?.uuid, isActive: true }],
       });
 

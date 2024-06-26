@@ -21,11 +21,11 @@ import { IoIosArrowForward } from "react-icons/io";
 import { api } from "@acme/api/convex/_generated/api";
 import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
 
-const Tasks: FC<{ userId: string | undefined }> = ({ userId }) => {
+const Tasks: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetails }) => {
   const session = useSession();
 
   const tasks = useQuery(api.queries.fetchTasks, {
-    userId: (session?.userId ?? userId) as Id<"user">,
+    userId: (session?.userId ?? userDetails?._id) as Id<"user">,
   });
 
   // const config = useQuery(api.queries.getAppConfigForApp);
@@ -37,19 +37,17 @@ const Tasks: FC<{ userId: string | undefined }> = ({ userId }) => {
       </h5>
       {typeof tasks !== "undefined" ? <TaskItems
         tasks={tasks}
-        userId={(session?.userId ?? userId) as string}
+        userDetails={userDetails}
       /> : <Loader color="white" />
       }    </div>
   );
 };
 
-const TaskItems: FC<{ tasks: Doc<"tasks">[] | undefined; userId: string }> = ({
+const TaskItems: FC<{ tasks: Doc<"tasks">[] | undefined; userDetails: Doc<"user"> | null | undefined }> = ({
   tasks,
-  userId,
+  userDetails,
 }) => {
-  const user = useQuery(api.queries.getUserDetails, {
-    userId: userId as Id<"user">,
-  });
+  const user = userDetails;
 
   // Collect task reward
   const collectReward = useMutation(api.mutations.rewardTaskXp);
@@ -67,7 +65,7 @@ const TaskItems: FC<{ tasks: Doc<"tasks">[] | undefined; userId: string }> = ({
               key={ki}
               completedTask={completedTask}
               collectReward={collectReward}
-              userId={userId}
+              userId={userDetails?._id}
             />
           );
         })}
@@ -89,7 +87,7 @@ const Item: FC<{
   completedTask: boolean | undefined;
   ki: number;
   collectReward: any;
-  userId: string;
+  userId: Id<"user"> | undefined;
 }> = ({ item, completedTask, ki, collectReward, userId }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   return (

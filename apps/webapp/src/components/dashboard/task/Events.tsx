@@ -28,23 +28,21 @@ import { HiMiniUserGroup } from "react-icons/hi2";
 import { IoIosArrowForward } from "react-icons/io";
 
 import { api } from "@acme/api/convex/_generated/api";
-import { Id } from "@acme/api/convex/_generated/dataModel";
+import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
 import { rewardEventXp } from "@acme/api/convex/mutations";
 
 import TaskCompleted from "../TaskCompleted";
 
-const Events: FC<{ userId: string | null }> = ({ userId }) => {
+const Events: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetails }) => {
   const session = useSession();
   const { toast } = useToast();
 
   // Get tasks and events
   const fetchEvents = useQuery(api.queries.fetchEvents, {
-    userId: (session?.userId ?? userId) as Id<"user">,
+    userId: (session?.userId ?? userDetails?._id) as Id<"user">,
   });
 
-  const user = useQuery(api.queries.getUserDetails, {
-    userId: (session?.userId ?? userId) as Id<"user">,
-  });
+  const user = userDetails;
 
   // Event interaction api functions
   const completeEvent = useMutation(api.mutations.rewardEventXp);

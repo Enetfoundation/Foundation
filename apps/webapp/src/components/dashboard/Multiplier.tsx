@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Vector from "@/assets/Vector.svg";
 import { useSession } from "@/lib/sessionContext";
-import { useMutation, useQuery } from "convex/react";
-import { PiTrendDownLight } from "react-icons/pi";
+// import { useMutation, useQuery } from "convex/react";
+// import { PiTrendDownLight } from "react-icons/pi";
 
-import { api } from "@acme/api/convex/_generated/api";
-import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
+// import { api } from "@acme/api/convex/_generated/api";
+import { Doc } from "@acme/api/convex/_generated/dataModel";
 
 type TogglerSystem = {
   toggleru: boolean;
-  userId: string | null;
+  userId: string | undefined;
   userDetail: Doc<"user"> | null | undefined;
  };
 
