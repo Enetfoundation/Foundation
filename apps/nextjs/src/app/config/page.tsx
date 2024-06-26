@@ -49,6 +49,7 @@ function ConfigPage() {
       type: string;
       uuid: string;
       xpCost: number;
+      totalLevel: number
     }[]
   >(
     Array.from({ length: 3 }).map((_, index) => {
@@ -59,7 +60,7 @@ function ConfigPage() {
           type: "bot",
           uuid: crypto.randomUUID(),
           xpCost: 200000,
-        };
+      totalLevel: 0        };
       } else if (index === 1) {
         return {
           rate: 10,
@@ -67,7 +68,7 @@ function ConfigPage() {
           type: "rate",
           uuid: crypto.randomUUID(),
           xpCost: 200000,
-        };
+      totalLevel: 10,        };
       } else {
         return {
           rate: 6,
@@ -75,6 +76,7 @@ function ConfigPage() {
           type: "duration",
           uuid: crypto.randomUUID(),
           xpCost: 200000,
+      totalLevel: 6
         };
       }
     }),
@@ -276,6 +278,17 @@ function ConfigPage() {
                       value={boost.xpCost}
                       onChange={(e) =>
                         setBoost("xpCost", index, e.target.valueAsNumber)
+                      }
+                    />
+                  </Label>
+                  <Label>
+                    Total Boost Level
+                    <Input
+                      placeholder="Boost level"
+                      type="number"
+                      value={boost.totalLevel}
+                      onChange={(e) =>
+                        setBoost("totalLevel", index, e.target.valueAsNumber)
                       }
                     />
                   </Label>

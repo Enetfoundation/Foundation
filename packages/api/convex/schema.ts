@@ -165,7 +165,7 @@ export default defineSchema(
               v.literal("rate"),
               v.literal("duration"),
             ),
-            totalLevel: v.optional(v.number()),
+            totalLevel: v.number(),
           }),
         ),
       ),

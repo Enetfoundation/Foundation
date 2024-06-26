@@ -12,15 +12,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "@/lib/sessionContext";
 import { getErrorMsg } from "@/lib/utils";
 import { useMutation, useQuery } from "convex/react";
-import { FaDiscord, FaTelegramPlane } from "react-icons/fa";
-import { FaCircleCheck, FaXTwitter } from "react-icons/fa6";
-import { HiMiniUserGroup } from "react-icons/hi2";
+// import { FaDiscord, FaTelegramPlane } from "react-icons/fa";
+// import { FaCircleCheck, FaXTwitter } from "react-icons/fa6";
+// import { HiMiniUserGroup } from "react-icons/hi2";
 
 import { api } from "@acme/api/convex/_generated/api";
 import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
 
 const Boost: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetails }) => {
-  const session = useSession();
+  // const session = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const appConfig = useQuery(api.queries.getAppConfigForApp);
   console.log(appConfig, ":::Applications config");
@@ -89,7 +89,7 @@ const BoostItems: FC<{
                     } else {
                       console.log(item, ":::ONBoost clicke", activeBoost);
                       await activateBoost({
-                        userId: userId as Id<"user">,
+                        userId: userDetails?._id as Id<"user">,
                         boost: { ...item },
                       });
                       setIsLoading(false);
@@ -173,7 +173,7 @@ const BoostItems: FC<{
               try {
                 // Call buy token proceedure
                 await buyXP({
-                  userId: userId as Id<"user">,
+                  userId: userDetails?._id as Id<"user">,
                 });
                 setIsLoading(false);
               } catch (err: any) {
