@@ -630,8 +630,8 @@ export const mine = internalMutation({
         await db.patch(user._id, {
           mineActive: false,
           boostStatus: persistBot ? [persistBot] : undefined,
-          // mineHours: config?.miningHours,
-          // miningRate: config?.miningCount,
+          mineHours: (config?.miningHours ?? 0) + (bot?.rate ?? 0),
+          miningRate: config?.miningCount,
           redeemableCount: user.miningRate * currentMineHour,
         });
       }
