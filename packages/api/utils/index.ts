@@ -20,11 +20,9 @@ export const sendTGBotMessage = async (tgUserId: string, message: string) => {
       })
     });
 
-
     if (response.ok) {
       return await response.json();
     }
-
 
     throw new Error("Something went wrong trying to send bot message");
 
@@ -32,6 +30,4 @@ export const sendTGBotMessage = async (tgUserId: string, message: string) => {
     console.log(err, ":::Bot API sendMessage error");
     throw err;
   }
-
-
 }

@@ -11,6 +11,7 @@ import {
   mutation,
 } from "./_generated/server";
 import { decodeURLString } from "./onboarding";
+import { sendTGBotMessage } from "../utils";
 
 export const storeEmail = internalMutation({
   args: { email: v.optional(v.string()), referreeCode: v.optional(v.string()) },
@@ -235,6 +236,10 @@ export const redeemReferralCode = mutation({
         type: "xp", // Can be xp and rank
       });
 
+      if (referree?.tgUserId) {
+        await sendTGBotMessage(referree?.tgUserId, `${nickname} Joined using your referral code`);
+      }
+
       await db.patch(userId, { referreeCode });
 
       // Add multiplier activity
@@ -245,6 +250,11 @@ export const redeemReferralCode = mutation({
           extra: `${multiplier}%`,
           type: "xp", // Can be xp and rank
         });
+
+        if (referree?.tgUserId) {
+          await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
+        }
+
       }
     }
   },

@@ -8,6 +8,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { action, internalAction, internalMutation, mutation } from "./_generated/server";
 import { activateMultiplier } from "./mutations";
+import { sendTGBotMessage } from "../utils/index";
 
 // Random OTP code
 const generateOTPCode = customAlphabet("0123456789", 6);
@@ -129,6 +130,10 @@ export const loginUser = action({
 
 
         if (type && type === "tg" && tgInitData) {
+
+          if (user?.tgUserId && user?.tgUsername) {
+            return user;
+          }
           await runAction(internal.onboarding.linkTelegram, { userId: user._id, initData: tgInitData });
         }
 
@@ -350,6 +355,12 @@ export const storeNickname = mutation({
             type: "xp", // Can be xp and rank
           });
 
+
+          // TG message
+          if (referree?.tgUserId) {
+            await sendTGBotMessage(referree?.tgUserId, `${nickname} Joined using your referral code`);
+          }
+
           // Add multiplier activity
           if (multiplier) {
             await ctx.db.insert("activity", {
@@ -358,6 +369,10 @@ export const storeNickname = mutation({
               extra: `${multiplier}%`,
               type: "xp", // Can be xp and rank
             });
+            // TG message
+            if (referree?.tgUserId) {
+              await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
+            }
           }
         }
 
