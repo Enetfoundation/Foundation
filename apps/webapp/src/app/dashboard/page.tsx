@@ -61,7 +61,7 @@ const Dashboard = () => {
       setLoadingModalVisible(false);
     }
 
-  }, [userDetail, session?.isLoading, session])
+  }, [userDetail, session?.isLoading, session, isLoadingModalVisible, setLoadingModalVisible])
 
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const Dashboard = () => {
             : `https://app.enetfoundation.com?refCode=${userDetail?.referralCode}`,
       );
     }
-  }, [userDetail]);
+  }, [userDetail, session]);
 
   return (
     <main className="container pb-10 pt-32">
