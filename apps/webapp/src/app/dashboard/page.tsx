@@ -34,8 +34,8 @@ const Dashboard = () => {
   const userId = searchParams.get("userId");
 
   // Fetch users data
-  const userDetail = !session || typeof session?.userId === "undefined" || !isClient? undefined : useQuery(api.queries.getUserDetails, {
-    userId: (session.userId ?? userId) as Id<"user">,
+  const userDetail = useQuery(api.queries.getUserDetails, {
+    userId: session ? (session.userId ?? userId) as Id<"user"> : undefined,
   });
 
   // const claimReward = useMutation(api.mutations.claimRewards);
@@ -71,7 +71,7 @@ const Dashboard = () => {
             : `https://app.enetfoundation.com?refCode=${userDetail?.referralCode}`,
       );
     }
-  }, [userDetail, session, isClient]);
+  }, [userDetail]);
 
   return (
     <main className="container pb-10 pt-32">
