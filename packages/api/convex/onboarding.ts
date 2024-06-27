@@ -8,7 +8,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { action, internalAction, internalMutation, mutation } from "./_generated/server";
 import { activateMultiplier } from "./mutations";
-import { sendTGBotMessage } from "../utils/index";
+// import { sendTGBotMessage } from "../utils/index";
 
 // Random OTP code
 const generateOTPCode = customAlphabet("0123456789", 6);
@@ -357,9 +357,9 @@ export const storeNickname = mutation({
 
 
           // TG message
-          if (referree?.tgUserId) {
-            await sendTGBotMessage(referree?.tgUserId, `${nickname} Joined using your referral code`);
-          }
+          // if (referree?.tgUserId) {
+          //   await sendTGBotMessage(referree?.tgUserId, `${nickname} Joined using your referral code`);
+          // }
 
           // Add multiplier activity
           if (multiplier) {
@@ -370,9 +370,9 @@ export const storeNickname = mutation({
               type: "xp", // Can be xp and rank
             });
             // TG message
-            if (referree?.tgUserId) {
-              await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
-            }
+            // if (referree?.tgUserId) {
+            //   await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
+            // }
           }
         }
 
