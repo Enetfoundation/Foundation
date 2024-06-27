@@ -31,7 +31,7 @@ const Dashboard = () => {
   const searchParams = useSearchParams();
   const isClient = useClient();
 
-  const userId = searchParams.get("userId");
+  const userId = searchParams.get("userId") as string | undefined;
 
   // Fetch users data
   const userDetail = useQuery(api.queries.getUserDetails, {
