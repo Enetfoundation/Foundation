@@ -20,6 +20,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader } from "@/components/loader";
 import AdBanner from "@/components/dashboard/AdBanner";
 import WebApp from "@twa-dev/sdk";
+import { useClient } from "@/lib/mountContext";
 
 export type EventType = Partial<Doc<"events">> & {
   company: Partial<Doc<"company">> & { logoUrl: string };
@@ -28,11 +29,12 @@ export type EventType = Partial<Doc<"events">> & {
 const Dashboard = () => {
   const session = useSession();
   const searchParams = useSearchParams();
+  const isClient = useClient();
 
   const userId = searchParams.get("userId");
 
   // Fetch users data
-  const userDetail = !session || typeof session?.userId === "undefined"? undefined : useQuery(api.queries.getUserDetails, {
+  const userDetail = !session || typeof session?.userId === "undefined" || !isClient? undefined : useQuery(api.queries.getUserDetails, {
     userId: session.userId as Id<"user">,
   });
 
@@ -42,11 +44,6 @@ const Dashboard = () => {
 
   // handle tasks cycle
   const [isLoadingModalVisible, setLoadingModalVisible] = useState(session?.isLoading && typeof userDetail === "undefined" ? true : false);
-  // const rewardTaskXpCount = useMutation(api.mutations.rewardTaskXp);
-  // const rewardEventXpCount = useMutation(api.mutations.rewardEventXp);
-  // const updateEventAction = useMutation(api.mutations.updateEventsForUser);
-  // const activateBoost = useMutation(api.mutations.activateBoost);
-
   // refLInk
   const [refLink, setRefLink] = useState<string>();
 
@@ -61,7 +58,7 @@ const Dashboard = () => {
       setLoadingModalVisible(false);
     }
 
-  }, [userDetail, session?.isLoading, session, isLoadingModalVisible, setLoadingModalVisible])
+  }, [userDetail, session?.isLoading, session, isClient, isLoadingModalVisible, setLoadingModalVisible])
 
 
   useEffect(() => {
@@ -74,7 +71,7 @@ const Dashboard = () => {
             : `https://app.enetfoundation.com?refCode=${userDetail?.referralCode}`,
       );
     }
-  }, [userDetail, session]);
+  }, [userDetail, session, isClient]);
 
   return (
     <main className="container pb-10 pt-32">

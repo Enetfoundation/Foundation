@@ -32,7 +32,7 @@ export default function Home() {
       const session = localItem? JSON.parse(localItem) : null;
 
       if(session && session?.isOnboarded) {
-        router.replace("/dashboard");
+        router.replace(`/dashboard?userId=${session?.userId}`);
       }
     } else {
       const localItem = localStorage.getItem('fd-session');
