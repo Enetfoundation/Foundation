@@ -32,8 +32,8 @@ const Dashboard = () => {
   const userId = searchParams.get("userId");
 
   // Fetch users data
-  const userDetail = useQuery(api.queries.getUserDetails, {
-    userId: (session?.userId ?? userId) as Id<"user"> | undefined,
+  const userDetail = !session || typeof session?.userId === "undefined"? undefined : useQuery(api.queries.getUserDetails, {
+    userId: session.userId as Id<"user">,
   });
 
   // const claimReward = useMutation(api.mutations.claimRewards);
