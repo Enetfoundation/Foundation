@@ -336,6 +336,11 @@ export const rewardTaskXp = mutation({
         extra: `${multiplier}%`,
         type: "xp", // Can be xp and rank
       });
+
+
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
+      }
     }
   },
 });
@@ -415,6 +420,11 @@ export const rewardEventXp = mutation({
         extra: `${multiplier}%`,
         type: "xp", // Can be xp and rank
       });
+
+
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
+      }
     }
   },
 });
@@ -644,6 +654,11 @@ export const mine = internalMutation({
           miningRate: config?.miningCount,
           redeemableCount: user.miningRate * currentMineHour,
         });
+
+
+        if (user?.tgUserId) {
+          await sendTGBotMessage(user?.tgUserId, `Your mining session has ended, Launch the app to claim your reward and start another session`);
+        }
       }
     }
   },
@@ -675,6 +690,12 @@ export const claimRewards = mutation({
         extra: (user?.redeemableCount ?? 0).toLocaleString("en-US"),
         type: "rank", // Can be xp and rank
       });
+
+
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`);
+      }
+
     }
   },
 });
@@ -754,6 +775,12 @@ export const buyXP = mutation({
       extra: xpAmountTopup.toLocaleString("en-US"),
       type: "xp", // Can be xp and rank
     });
+
+
+    if (user?.tgUserId) {
+      await sendTGBotMessage(user?.tgUserId, `You just purchased some XP`);
+    }
+
   },
 });
 
@@ -836,6 +863,10 @@ export const activateBoost = mutation({
         message: `You activated bot boost`,
         type: "rank", // Can be xp and rank
       });
+
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You activated bot boost`);
+      }
     } else {
       // If type is speed
       // for speed boosts multiply the initial xpCost by 2 and and increase the users currentLevel
@@ -924,6 +955,11 @@ export const activateBoost = mutation({
         message: `You activated rate/duration boost`,
         type: "rank", // Can be xp and rank
       });
+
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You activated rate/duration boost`);
+      }
+
     }
   },
 });
