@@ -46,6 +46,15 @@ export default function Home() {
     }
   }, [isClient]);
 
+
+  useEffect(() => {
+
+    if("Adsgram" in window) {
+      console.log(window?.Adsgram, ":::Adsgram in window");
+    }
+    
+  }, [isClient]);
+
   return (
     <main className="flex flex-col items-center justify-center gap-24 min-h-screen">
       <Dialog open={isCreatingLoading}>

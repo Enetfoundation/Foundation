@@ -1,4 +1,6 @@
-import React, { FC } from "react";
+"use client";
+
+import React, { FC, useEffect, useRef } from "react";
 import { useSession } from "@/lib/sessionContext";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { BiCoinStack } from "react-icons/bi";
@@ -8,6 +10,7 @@ import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
 
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
+import { useClient } from "@/lib/mountContext";
 
 type Mining = {
   mined: number;
@@ -22,17 +25,43 @@ type Mining = {
 const MiningStats: FC<Mining> = ({ mined, mining, mineHours, time, rate, userId, userDetail }) => {
   const { toast } = useToast();
   const session = useSession();
+  const isClient = useClient();
 
   // Call start miner function
   const triggerMiner = useMutation(api.mutations.triggerMining);
   // claim mine reward
   const claimReward = useMutation(api.mutations.claimRewards);
 
+
+  const adRef = useRef(null);
+
+  useEffect(() => {
+
+    if ("Adsgram" in window) {
+      console.log(window.Adsgram, ":::Adsgram initialised in window");
+      // @ts-ignore
+      adRef.current = window.Adsgram.init({ blockId: '331', debug: true });
+    }
+
+  }, [isClient]);
+
   const MineButton = () => userDetail?.mineActive ? (
     <Button
       className="h-fit gap-2 bg-white py-4 text-black"
       // disabled
       onClick={() => {
+        if (adRef.current) {
+          // @ts-ignore
+          adRef.current?.show()
+            .then((result: any) => {
+              // fires when ad ends
+              console.log(result, ":::Ads end result");
+            })
+            .catch((result: any) => {
+              console.log(result, ":::Ad skip or error result");
+            });
+
+        }
         toast({
           title: "There is a mining session currently active",
         });
@@ -50,6 +79,19 @@ const MiningStats: FC<Mining> = ({ mined, mining, mineHours, time, rate, userId,
         color: userDetail?.mineActive ? "black" : "white",
       }}
       onClick={async () => {
+        if (adRef.current) {
+          // @ts-ignore
+          adRef.current?.show()
+            .then((result: any) => {
+              // fires when ad ends
+              console.log(result, ":::Ads end result");
+            })
+            .catch((result: any) => {
+              console.log(result, ":::Ad skip or error result");
+            });
+
+        }
+
         if (userDetail && userDetail.redeemableCount <= 0 && !userDetail?.mineActive) {
           await triggerMiner({
             userId: (session?.userId ?? userId) as Id<"user">,

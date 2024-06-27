@@ -117,7 +117,7 @@ const Dashboard = () => {
       </div>
       {typeof userDetail !== "undefined" && !session?.isLoading && <PlannedTask userDetail={userDetail} userId={userDetail?._id ?? session?.userId} />}
       <TwitterProfile />
-      <AdBanner dataAdSlot="2550264144" dataAdFormat="auto" dataFullWidthResponsive={true} />
+      {/*<AdBanner dataAdSlot="2550264144" dataAdFormat="auto" dataFullWidthResponsive={true} /> */}
       {/* <ClaimXP /> */}
     </main>
   );
