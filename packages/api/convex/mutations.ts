@@ -11,7 +11,7 @@ import {
   mutation,
 } from "./_generated/server";
 import { decodeURLString } from "./onboarding";
-import { sendTGBotMessage } from "../utils";
+// import { sendTGBotMessage } from "../utils";
 
 export const storeEmail = internalMutation({
   args: { email: v.optional(v.string()), referreeCode: v.optional(v.string()) },
@@ -236,9 +236,9 @@ export const redeemReferralCode = mutation({
         type: "xp", // Can be xp and rank
       });
 
-      if (referree?.tgUserId) {
-        await sendTGBotMessage(referree?.tgUserId, `${nickname} Joined using your referral code`);
-      }
+      // if (referree?.tgUserId) {
+      //   await sendTGBotMessage(referree?.tgUserId, `${nickname} Joined using your referral code`);
+      // }
 
       await db.patch(userId, { referreeCode });
 
@@ -251,9 +251,9 @@ export const redeemReferralCode = mutation({
           type: "xp", // Can be xp and rank
         });
 
-        if (referree?.tgUserId) {
-          await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
-        }
+        // if (referree?.tgUserId) {
+        //   await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
+        // }
 
       }
     }
@@ -338,9 +338,9 @@ export const rewardTaskXp = mutation({
       });
 
 
-      if (user?.tgUserId) {
-        await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
-      }
+      // if (user?.tgUserId) {
+      //   await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
+      // }
     }
   },
 });
@@ -422,9 +422,9 @@ export const rewardEventXp = mutation({
       });
 
 
-      if (user?.tgUserId) {
-        await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
-      }
+      // if (user?.tgUserId) {
+      //   await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
+      // }
     }
   },
 });
@@ -656,9 +656,9 @@ export const mine = internalMutation({
         });
 
 
-        if (user?.tgUserId) {
-          await sendTGBotMessage(user?.tgUserId, `Your mining session has ended, Launch the app to claim your reward and start another session`);
-        }
+        // if (user?.tgUserId) {
+        //   await sendTGBotMessage(user?.tgUserId, `Your mining session has ended, Launch the app to claim your reward and start another session`);
+        // }
       }
     }
   },
@@ -692,9 +692,9 @@ export const claimRewards = mutation({
       });
 
 
-      if (user?.tgUserId) {
-        await sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`);
-      }
+      // if (user?.tgUserId) {
+      //   await sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`);
+      // }
 
     }
   },
@@ -777,9 +777,9 @@ export const buyXP = mutation({
     });
 
 
-    if (user?.tgUserId) {
-      await sendTGBotMessage(user?.tgUserId, `You just purchased some XP`);
-    }
+    // if (user?.tgUserId) {
+    //   await sendTGBotMessage(user?.tgUserId, `You just purchased some XP`);
+    // }
 
   },
 });
@@ -864,9 +864,9 @@ export const activateBoost = mutation({
         type: "rank", // Can be xp and rank
       });
 
-      if (user?.tgUserId) {
-        await sendTGBotMessage(user?.tgUserId, `You activated bot boost`);
-      }
+      // if (user?.tgUserId) {
+      //   await sendTGBotMessage(user?.tgUserId, `You activated bot boost`);
+      // }
     } else {
       // If type is speed
       // for speed boosts multiply the initial xpCost by 2 and and increase the users currentLevel
@@ -956,9 +956,9 @@ export const activateBoost = mutation({
         type: "rank", // Can be xp and rank
       });
 
-      if (user?.tgUserId) {
-        await sendTGBotMessage(user?.tgUserId, `You activated rate/duration boost`);
-      }
+      // if (user?.tgUserId) {
+      //   await sendTGBotMessage(user?.tgUserId, `You activated rate/duration boost`);
+      // }
 
     }
   },
