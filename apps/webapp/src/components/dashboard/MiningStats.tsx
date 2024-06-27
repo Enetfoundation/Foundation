@@ -40,7 +40,7 @@ const MiningStats: FC<Mining> = ({ mined, mining, mineHours, time, rate, userId,
     if ("Adsgram" in window) {
       console.log(window.Adsgram, ":::Adsgram initialised in window");
       // @ts-ignore
-      adRef.current = window.Adsgram.init({ blockId: '331', debug: true });
+      adRef.current = window.Adsgram.init({ blockId: '331' });
     }
 
   }, [isClient]);
