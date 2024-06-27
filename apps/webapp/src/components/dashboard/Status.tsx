@@ -16,7 +16,7 @@ const Status: FC<{
   minedCount: number;
   mineRate: number;
   mineHours: number;
-  userId: string | null;
+  userId: string | undefined;
   userDetail: Doc<"user"> | null | undefined;
 }> = ({ minedCount, mineRate, mineHours, userId, userDetail }) => {
   // const session = useSession();

@@ -15,7 +15,7 @@ type Mining = {
   mineHours: number;
   time: string;
   rate: number;
-  userId: string | null;
+  userId: string | undefined;
   userDetail: Doc<"user"> | null | undefined;
 };
 
