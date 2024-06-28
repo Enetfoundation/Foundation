@@ -92,14 +92,14 @@ export const storeTgDetails = internalMutation({
 
     const config = await ctx.db.query("config").first();
     // Check if email already exists
-    const existingUser = await ctx.db
+    const checkForMultiAccounts = await ctx.db
       .query("user")
       .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id))
-      .unique();
+      .collect();
 
     // Checking if the users email already exists without being deleted
     if (
-      existingUser && existingUser?.deleted
+      checkForMultiAccounts.length && checkForMultiAccounts.length > 1
     ) {
       throw new ConvexError({
         message: "Telegram account already exists",

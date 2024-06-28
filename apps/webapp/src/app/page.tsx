@@ -23,6 +23,7 @@ export default function Home() {
 
   const refCode = searchParams.get("refCode");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
+  
   useEffect(() => {
 
     if (typeof window !== "undefined" && !!WebApp.initData.length) {
