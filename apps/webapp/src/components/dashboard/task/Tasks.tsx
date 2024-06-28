@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, Suspense, useState } from "react";
+import { FC, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { IoIosArrowForward } from "react-icons/io";
 
 import { api } from "@acme/api/convex/_generated/api";
 import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
+import { useClient } from "@/lib/mountContext";
 
 const Tasks: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetails }) => {
   const session = useSession();
@@ -48,6 +49,7 @@ const TaskItems: FC<{ tasks: Doc<"tasks">[] | undefined; userDetails: Doc<"user"
   userDetails,
 }) => {
   const user = userDetails;
+  const isClient = useClient();
 
   // Collect task reward
   const collectReward = useMutation(api.mutations.rewardTaskXp);
@@ -66,6 +68,7 @@ const TaskItems: FC<{ tasks: Doc<"tasks">[] | undefined; userDetails: Doc<"user"
               completedTask={completedTask}
               collectReward={collectReward}
               userId={userDetails?._id}
+              isClient={isClient}
             />
           );
         })}
@@ -88,8 +91,24 @@ const Item: FC<{
   ki: number;
   collectReward: any;
   userId: Id<"user"> | undefined;
-}> = ({ item, completedTask, ki, collectReward, userId }) => {
+  isClient: boolean
+}> = ({ item, completedTask, ki, collectReward, userId, isClient }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+
+
+  const adRef = useRef(null);
+
+  useEffect(() => {
+
+    if ("Adsgram" in window) {
+      console.log(window.Adsgram, ":::Adsgram initialised in window");
+      // @ts-ignore
+      adRef.current = window.Adsgram.init({ blockId: '331' });
+    }
+
+  }, [isClient]);
+
+
   return (
     <Dialog
       open={dialogOpen}
@@ -170,6 +189,20 @@ const Item: FC<{
             <Button
               className="twitter-btn"
               onClick={async () => {
+
+                if (adRef.current) {
+                  // @ts-ignore
+                  adRef.current?.show()
+                    .then((result: any) => {
+                      // fires when ad ends
+                      console.log(result, ":::Ads end result");
+                    })
+                    .catch((result: any) => {
+                      console.log(result, ":::Ad skip or error result");
+                    });
+
+                }
+
                 await collectReward({
                   userId: userId as Id<"user">,
                   xpCount: item?.reward as number,

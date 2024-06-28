@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, Suspense, useEffect, useState } from "react";
+import React, { FC, Suspense, useEffect, useRef, useState } from "react";
 import { Loader } from "@/components/loader";
 import ReturnHeader from "@/components/ReturnHeader";
 import { useSession } from "@/lib/sessionContext";
@@ -10,9 +10,12 @@ import { IoTelescopeOutline } from "react-icons/io5";
 
 import { api } from "@acme/api/convex/_generated/api";
 import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
+import { useClient } from "@/lib/mountContext";
 
 const History = () => {
   const session = useSession();
+  const isClient = useClient();
+
   const activities: Doc<"activity">[] | null | undefined = useQuery(
     api.queries.getHistory,
     {
@@ -21,6 +24,39 @@ const History = () => {
   );
 
   console.log(session, activities, ":::Session object");
+
+
+  const adRef = useRef(null);
+
+  useEffect(() => {
+
+    if ("Adsgram" in window) {
+      console.log(window.Adsgram, ":::Adsgram initialised in window");
+      // @ts-ignore
+      adRef.current = window.Adsgram.init({ blockId: '331' });
+    }
+
+  }, [isClient]);
+
+
+  // show add when page loads
+  useEffect(() => {
+
+    if (adRef.current) {
+      // @ts-ignore
+      adRef.current?.show()
+        .then((result: any) => {
+          // fires when ad ends
+          console.log(result, ":::Ads end result");
+        })
+        .catch((result: any) => {
+          console.log(result, ":::Ad skip or error result");
+        });
+
+    }
+
+  }, [])
+
 
   return (
     <main className="pt-32">

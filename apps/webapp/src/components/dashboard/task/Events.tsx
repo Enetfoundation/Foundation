@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Event from "@/assets/eventimg.png";
@@ -32,6 +32,7 @@ import { Doc, Id } from "@acme/api/convex/_generated/dataModel";
 import { rewardEventXp } from "@acme/api/convex/mutations";
 
 import TaskCompleted from "../TaskCompleted";
+import { useClient } from "@/lib/mountContext";
 
 const Events: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetails }) => {
   const session = useSession();
@@ -75,7 +76,7 @@ const Events: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetai
                 key={ki}
                 setIsLoading={setIsLoading}
                 ki={ki}
-                userId={(user?._id ?? userId) as string}
+                userId={(user?._id.toString()) as string}
                 updateEventTaskStatus={updateEventTaskStatus}
                 completeEvent={completeEvent}
               />
@@ -108,214 +109,244 @@ const EventItem: FC<{
   updateEventTaskStatus,
   completeEvent,
 }) => {
-  // drawer controls
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  // completed dialog controls
-  const [showCompletedDialog, setShowCompletedDialog] = useState(false);
-  const { toast } = useToast();
+    // drawer controls
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    // completed dialog controls
+    const [showCompletedDialog, setShowCompletedDialog] = useState(false);
+    const { toast } = useToast();
+    const isClient = useClient();
 
-  return (
-    <li key={ki} className="task-list">
-      <Drawer open={drawerOpen} onOpenChange={(open) => setDrawerOpen(open)}>
-        <DrawerTrigger asChild>
-          <button
-            className={`w-full px-5 py-4 ${
-              event?.completed ? "opacity-30" : ""
-            } block space-y-2`}
-            onClick={(e) => {
-              console.log(":::Dialog trigger clicked");
-              setDrawerOpen(true);
-              // if (event) {
-              //   e.preventDefault();
-              // }
-            }}
-          >
-            <div className="flex w-full items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="icon-container rounded-md border border-white/20 p-1">
+    const adRef = useRef(null);
+
+    useEffect(() => {
+
+      if ("Adsgram" in window) {
+        console.log(window.Adsgram, ":::Adsgram initialised in window");
+        // @ts-ignore
+        adRef.current = window.Adsgram.init({ blockId: '331' });
+      }
+
+    }, [isClient]);
+
+
+
+    return (
+      <li key={ki} className="task-list">
+        <Drawer open={drawerOpen} onOpenChange={(open) => setDrawerOpen(open)}>
+          <DrawerTrigger asChild>
+            <button
+              className={`w-full px-5 py-4 ${event?.completed ? "opacity-30" : ""
+                } block space-y-2`}
+              onClick={(e) => {
+                console.log(":::Dialog trigger clicked");
+                setDrawerOpen(true);
+                // if (event) {
+                //   e.preventDefault();
+                // }
+              }}
+            >
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="icon-container rounded-md border border-white/20 p-1">
+                    <img
+                      src={item?.company?.logoUrl}
+                      width={"100%"}
+                      height={"100%"}
+                      alt="Company logo"
+                      className="rounded-sm"
+                    />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-[22px] font-semibold">{item?.title}</h4>
+                  </div>
+                </div>
+                <div>
+                  {!event?.completed && (
+                    <IoIosArrowForward className="text-xl text-black dark:text-white" />
+                  )}
+                </div>{" "}
+              </div>
+              <div className="text-left">
+                <p className="background inline-block rounded-full px-2 py-1 text-lg font-semibold text-[#767676]">
+                  {event?.completed ? (
+                    "Completed"
+                  ) : (
+                    <span>
+                      +
+                      {Number(item?.reward ?? 0).toLocaleString("en-US", {
+                        maximumFractionDigits: 2,
+                        minimumFractionDigits: 2,
+                      })}{" "}
+                      XP
+                    </span>
+                  )}
+                </p>
+              </div>
+            </button>
+          </DrawerTrigger>
+
+          <DrawerContent className="foreground large-screen pb-4">
+            <div className="mx-auto h-fit max-h-[85vh] w-full overflow-y-auto px-5">
+              <DrawerHeader className="h-auto">
+                {/* {!item?.company?.logoUrl && ( */}
+                {/* <DrawerTitle className="max-h-16 w-full"> */}
+                <div className="relative">
                   <img
                     src={item?.company?.logoUrl}
-                    width={"100%"}
-                    height={"100%"}
-                    alt="Company logo"
-                    className="rounded-sm"
+                    sizes="100%"
+                    alt="event"
+                    className="absolute left-2 top-2 h-14 w-14 rounded-md"
+                  />
+                  <img
+                    src={item?.coverUrl!}
+                    sizes="100%"
+                    alt="cover-img"
+                    className="rounded-lg"
                   />
                 </div>
-                <div className="text-left">
-                  <h4 className="text-[22px] font-semibold">{item?.title}</h4>
-                </div>
-              </div>
-              <div>
-                {!event?.completed && (
-                  <IoIosArrowForward className="text-xl text-black dark:text-white" />
-                )}
-              </div>{" "}
-            </div>
-            <div className="text-left">
-              <p className="background inline-block rounded-full px-2 py-1 text-lg font-semibold text-[#767676]">
-                {event?.completed ? (
-                  "Completed"
-                ) : (
-                  <span>
-                    +
+                {/* </DrawerTitle> */}
+                {/* )} */}
+
+                <DrawerDescription className="flex items-center justify-between pt-2 text-black dark:text-white">
+                  <h2 className="text-2xl font-semibold text-white">
+                    {item?.title}
+                  </h2>{" "}
+                  <span className="text-bold rounded-2xl bg-[#D9D9D9] px-4 py-1 text-[#767676]">
                     {Number(item?.reward ?? 0).toLocaleString("en-US", {
                       maximumFractionDigits: 2,
                       minimumFractionDigits: 2,
                     })}{" "}
                     XP
                   </span>
-                )}
-              </p>
-            </div>
-          </button>
-        </DrawerTrigger>
+                </DrawerDescription>
+                <p className="text-left text-black dark:text-[#989898]">
+                  {item?.description}
+                </p>
+              </DrawerHeader>
+              <div className="p-4 pb-0">
+                <ul className="grid gap-5">
+                  {item?.actions?.map((action: any, idx: number) => {
+                    const completedAction = event?.actions?.find(
+                      (val: any) => val?.name === action?.name,
+                    );
 
-        <DrawerContent className="foreground large-screen pb-4">
-          <div className="mx-auto h-fit max-h-[85vh] w-full overflow-y-auto px-5">
-            <DrawerHeader className="h-auto">
-              {/* {!item?.company?.logoUrl && ( */}
-              {/* <DrawerTitle className="max-h-16 w-full"> */}
-              <div className="relative">
-                <img
-                  src={item?.company?.logoUrl}
-                  sizes="100%"
-                  alt="event"
-                  className="absolute left-2 top-2 h-14 w-14 rounded-md"
-                />
-                <img
-                  src={item?.coverUrl!}
-                  sizes="100%"
-                  alt="cover-img"
-                  className="rounded-lg"
-                />
-              </div>
-              {/* </DrawerTitle> */}
-              {/* )} */}
-
-              <DrawerDescription className="flex items-center justify-between pt-2 text-black dark:text-white">
-                <h2 className="text-2xl font-semibold text-white">
-                  {item?.title}
-                </h2>{" "}
-                <span className="text-bold rounded-2xl bg-[#D9D9D9] px-4 py-1 text-[#767676]">
-                  {Number(item?.reward ?? 0).toLocaleString("en-US", {
-                    maximumFractionDigits: 2,
-                    minimumFractionDigits: 2,
-                  })}{" "}
-                  XP
-                </span>
-              </DrawerDescription>
-              <p className="text-left text-black dark:text-[#989898]">
-                {item?.description}
-              </p>
-            </DrawerHeader>
-            <div className="p-4 pb-0">
-              <ul className="grid gap-5">
-                {item?.actions?.map((action: any, idx: number) => {
-                  const completedAction = event?.actions?.find(
-                    (val: any) => val?.name === action?.name,
-                  );
-
-                  return (
-                    <li key={idx}>
-                      <Link
-                        href={action?.link}
-                        target="_blank"
-                        className={`flex items-center justify-between py-2 ${
-                          completedAction?.completed && "opacity-30"
-                        }`}
-                        onClick={async (e) => {
-                          if (completedAction?.completed) {
-                            e.preventDefault();
-                          } else {
-                            await delay(5);
-                            await updateEventTaskStatus({
-                              userId: userId as Id<"user">,
-                              eventId: item?._id,
-                              actionName: action?.name!,
-                            });
-                          }
-                        }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="icon-container">
-                            {/* Can be replaced with an image tag if image is to be rendered instead */}
-                            {action.channel == "website" && <BsGlobe />}
-                            {/* {action.channel == "invite" && <HiMiniUserGroup />} */}
-                            {action.channel == "twitter" && <FaXTwitter />}
-                            {action.channel == "discord" && <FaDiscord />}
-                            {action.channel == "telegram" && (
-                              <FaTelegramPlane />
+                    return (
+                      <li key={idx}>
+                        <Link
+                          href={action?.link}
+                          target="_blank"
+                          className={`flex items-center justify-between py-2 ${completedAction?.completed && "opacity-30"
+                            }`}
+                          onClick={async (e) => {
+                            if (completedAction?.completed) {
+                              e.preventDefault();
+                            } else {
+                              await delay(5);
+                              await updateEventTaskStatus({
+                                userId: userId as Id<"user">,
+                                eventId: item?._id,
+                                actionName: action?.name!,
+                              });
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="icon-container">
+                              {/* Can be replaced with an image tag if image is to be rendered instead */}
+                              {action.channel == "website" && <BsGlobe />}
+                              {/* {action.channel == "invite" && <HiMiniUserGroup />} */}
+                              {action.channel == "twitter" && <FaXTwitter />}
+                              {action.channel == "discord" && <FaDiscord />}
+                              {action.channel == "telegram" && (
+                                <FaTelegramPlane />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-lg font-semibold">
+                                {action.name}
+                              </h4>
+                            </div>
+                          </div>
+                          <div className="text-2xl">
+                            {!completedAction?.completed ? (
+                              <IoIosArrowForward className="text-black dark:text-white" />
+                            ) : (
+                              <FaCircleCheck className="text-black dark:text-white" />
                             )}
                           </div>
-                          <div>
-                            <h4 className="text-lg font-semibold">
-                              {action.name}
-                            </h4>
-                          </div>
-                        </div>
-                        <div className="text-2xl">
-                          {!completedAction?.completed ? (
-                            <IoIosArrowForward className="text-black dark:text-white" />
-                          ) : (
-                            <FaCircleCheck className="text-black dark:text-white" />
-                          )}
-                        </div>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            <DrawerFooter>
-              {/* Close event Drawer sheet and complete event if all tasks are completed */}
-              {/* <DrawerClose asChild> */}
-              <button
-                className="block rounded-xl bg-black p-6 text-xl font-medium text-white dark:bg-white dark:text-black"
-                onClick={async () => {
-                  try {
-                    setIsLoading(true);
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <DrawerFooter>
+                {/* Close event Drawer sheet and complete event if all tasks are completed */}
+                {/* <DrawerClose asChild> */}
+                <button
+                  className="block rounded-xl bg-black p-6 text-xl font-medium text-white dark:bg-white dark:text-black"
+                  onClick={async () => {
+                    try {
+                      setIsLoading(true);
 
-                    if (event?.completed) {
+                      if (event?.completed) {
+                        setIsLoading(false);
+                        setDrawerOpen(false);
+                        toast({
+                          title: "All tasks in event has been completed!",
+                        });
+                      } else {
+
+
+                        // Show adGram here
+
+                        if (adRef.current) {
+                          // @ts-ignore
+                          adRef.current?.show()
+                            .then((result: any) => {
+                              // fires when ad ends
+                              console.log(result, ":::Ads end result");
+                            })
+                            .catch((result: any) => {
+                              console.log(result, ":::Ad skip or error result");
+                            });
+
+                        }
+
+                        await completeEvent({
+                          userId: userId as Id<"user">,
+                          eventId: item?._id,
+                          xpCount: item?.reward,
+                        });
+                        setIsLoading(false);
+                        setShowCompletedDialog(true);
+                      }
+                    } catch (err: any) {
                       setIsLoading(false);
-                      setDrawerOpen(false);
+                      console.log(err, ":::OnEventComplete_error");
+                      const errMsg = getErrorMsg(err);
+                      setShowCompletedDialog(false);
                       toast({
-                        title: "All tasks in event has been completed!",
+                        title: errMsg,
                       });
-                    } else {
-                      await completeEvent({
-                        userId: userId as Id<"user">,
-                        eventId: item?._id,
-                        xpCount: item?.reward,
-                      });
-                      setIsLoading(false);
-                      setShowCompletedDialog(true);
                     }
-                  } catch (err: any) {
-                    setIsLoading(false);
-                    console.log(err, ":::OnEventComplete_error");
-                    const errMsg = getErrorMsg(err);
-                    setShowCompletedDialog(false);
-                    toast({
-                      title: errMsg,
-                    });
-                  }
-                }}
-              >
-                Completed
-              </button>
-              <TaskCompleted
-                showCompletedDialog={showCompletedDialog}
-                setShowCompletedDialog={setShowCompletedDialog}
-                setDrawerOpen={setDrawerOpen}
-                reward={item?.reward}
-              />
-              {/* </DrawerClose> */}
-            </DrawerFooter>
-          </div>
-        </DrawerContent>
-      </Drawer>
-    </li>
-  );
-};
+                  }}
+                >
+                  Completed
+                </button>
+                <TaskCompleted
+                  showCompletedDialog={showCompletedDialog}
+                  setShowCompletedDialog={setShowCompletedDialog}
+                  setDrawerOpen={setDrawerOpen}
+                  reward={item?.reward}
+                />
+                {/* </DrawerClose> */}
+              </DrawerFooter>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </li>
+    );
+  };
 
 export default Events;
