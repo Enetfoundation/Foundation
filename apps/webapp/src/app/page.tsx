@@ -23,23 +23,23 @@ export default function Home() {
 
   const refCode = searchParams.get("refCode");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
-  
+
   useEffect(() => {
 
     if (typeof window !== "undefined" && !!WebApp.initData.length) {
       // WebApp.showPopup({message: "Link an existing account or create a new one with telegram user information", title: "Link/Create Account"}, (id) => {console.log(id, ":::Id of pop up")});
       console.log(WebApp.initData, WebApp.initDataUnsafe, ":::init data inside entry page");
       const localItem = localStorage.getItem('fd-session');
-      const session = localItem? JSON.parse(localItem) : null;
+      const session = localItem ? JSON.parse(localItem) : null;
 
-      if(session && session?.isOnboarded) {
+      if (session && session?.isOnboarded) {
         router.replace(`/dashboard?userId=${session?.userId}`);
       }
     } else {
       const localItem = localStorage.getItem('fd-session');
-      const session = localItem? JSON.parse(localItem) : null;
+      const session = localItem ? JSON.parse(localItem) : null;
 
-      if(session && session?.isOnboarded) {
+      if (session && session?.isOnboarded) {
         router.replace("/dashboard");
       } else {
         router.replace("/authentication");
@@ -50,10 +50,10 @@ export default function Home() {
 
   useEffect(() => {
 
-    if("Adsgram" in window) {
+    if ("Adsgram" in window) {
       console.log(window?.Adsgram, ":::Adsgram in window");
     }
-    
+
   }, [isClient]);
 
   return (
@@ -84,13 +84,13 @@ export default function Home() {
         </div>
       </div>
       <div className="relative h-16 w-40 shrink-0 justify-self-end object-contain">
-        <Image
+        {/*        <Image
           src="/powered.png"
           alt="Logo"
           fill={true}
           sizes="100%"
           className="invert dark:invert-0"
-        />
+        /> */}
       </div>
       {
         isClient && (typeof window !== "undefined") && !!WebApp.initData.length &&
