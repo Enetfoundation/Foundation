@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Overview from "@/components/dashboard/Overview";
@@ -21,7 +21,7 @@ import { Loader } from "@/components/loader";
 import AdBanner from "@/components/dashboard/AdBanner";
 import WebApp from "@twa-dev/sdk";
 import { useClient } from "@/lib/mountContext";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export type EventType = Partial<Doc<"events">> & {
   company: Partial<Doc<"company">> & { logoUrl: string };
@@ -48,6 +48,37 @@ const Dashboard = () => {
   const [isLoadingModalVisible, setLoadingModalVisible] = useState(session?.isLoading && typeof userDetail === "undefined" ? true : false);
   // refLInk
   const [refLink, setRefLink] = useState<string>();
+  const adRef = useRef(null);
+
+  useEffect(() => {
+
+    if ("Adsgram" in window) {
+      console.log(window.Adsgram, ":::Adsgram initialised in window");
+      // @ts-ignore
+      adRef.current = window.Adsgram.init({ blockId: '331' });
+    }
+
+  }, [isClient]);
+
+
+  // show add when page loads
+  useEffect(() => {
+
+    if (adRef.current) {
+      // @ts-ignore
+      adRef.current?.show()
+        .then((result: any) => {
+          // fires when ad ends
+          console.log(result, ":::Ads end result");
+        })
+        .catch((result: any) => {
+          console.log(result, ":::Ad skip or error result");
+        });
+
+    }
+
+  }, [])
+
 
 
   // toggle loader modal
