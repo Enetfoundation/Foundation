@@ -27,6 +27,7 @@ export default function Home() {
 
 
   const refCode = searchParams.get("refCode");
+  console.log(refCode, ":::gotten referral code");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
 
   useEffect(() => {
