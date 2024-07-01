@@ -64,16 +64,6 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    if(userDetail === null) {
-      localStorage.removeItem('fd-session');
-      localStorage.clear();
-      router.replace("/");
-    }
-    
-  }, [userDetail]);
-
-
-  useEffect(() => {
     if (userDetail) {
       console.log(userDetail?.mineHours, ":::Mine hours");
       setRefLink(
