@@ -153,7 +153,7 @@ const HeaderNavigation = () => {
             className="drop-down-item"
             onClick={async () => {
               localStorage.removeItem("fd-session");
-              router.replace("/authentication");
+              router.replace("/");
             }}
           >
             <TbLogout2 />
