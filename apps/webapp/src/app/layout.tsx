@@ -1,8 +1,5 @@
 import { Plus_Jakarta_Sans as FontSans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/react";
-
 
 import "./globals.css";
 
@@ -68,8 +65,6 @@ export default function RootLayout({
           </ConvexClientProvider>
           <Toaster />
         </ThemeProvider>
-        <SpeedInsights />
-        <Analytics />
       </body>
     </html>
   );

@@ -20,6 +20,8 @@ export default function Home() {
   const isClient = useClient();
   const searchParams = useSearchParams();
   const [isCreatingLoading, setIsCreatingLoading] = useState(false);
+  const [entryLoader, setEntryLoader] = useState(true);
+
   const [refCode, setRefCode] = useState<string>();
 
 
@@ -36,21 +38,30 @@ export default function Home() {
     if (typeof window !== "undefined" && !!WebApp.initData.length) {
       // WebApp.showPopup({message: "Link an existing account or create a new one with telegram user information", title: "Link/Create Account"}, (id) => {console.log(id, ":::Id of pop up")});
       // @ts-ignore
-      console.log(WebApp.initData, WebApp.initDataUnsafe, typeof window?.Telegram?.WebAppInitData, window?.Telegram?.WebAppInitData, ":::init data inside entry page", );
+      console.log(WebApp.initData, WebApp.initDataUnsafe, ":::init data inside entry page",);
       const localItem = localStorage.getItem('fd-session');
       const session = localItem ? JSON.parse(localItem) : null;
 
+      if (WebApp.initDataUnsafe?.start_param || WebApp.initDataUnsafe?.start_param?.length) {
+        setRefCode(WebApp.initDataUnsafe.start_param);
+      }
+
       //TODO: uncomment when all fixes to referral has been done
-      // if (session && session?.isOnboarded) {
-      //   router.replace(`/dashboard?userId=${session?.userId}`);
-      // }
+      if (session && session?.isOnboarded) {
+        setEntryLoader(false);
+        router.replace(`/dashboard?userId=${session?.userId}`);
+      }
+      setEntryLoader(false);
+
     } else {
       const localItem = localStorage.getItem('fd-session');
       const session = localItem ? JSON.parse(localItem) : null;
 
       if (session && session?.isOnboarded) {
+        setEntryLoader(false);
         router.replace("/dashboard");
       } else {
+        setEntryLoader(false);
         router.replace("/authentication");
       }
     }
@@ -67,6 +78,12 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-center gap-24 min-h-screen">
+      <Dialog open={entryLoader}>
+        <DialogContent hideCloseBtn className="grid items-center gap-2 justify-center shadow-none outline-none border-none">
+          <Loader color="white" />
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={isCreatingLoading}>
         <DialogContent hideCloseBtn className="grid items-center gap-2 justify-center shadow-none outline-none border-none">
           <Loader color="white" />
@@ -102,9 +119,8 @@ export default function Home() {
         /> */}
       </div>
 
-    {isUnderMentainance && <div className="flex w-full items-center justify-center gap-2 px-2"><h1 className="text-xl text-white font-normal text-center">This telegram web app is currently under serious update, kindly use the website <br/> <Link className="text-blue-600 font-bold" href="https://app.enetfoundation.com" target="_blank">app.enetfoundation.com</Link></h1></div>}
-      {/*
-        isClient && (typeof window !== "undefined") && !!WebApp.initData.length &&
+      {isUnderMentainance && <div className="flex w-full items-center justify-center gap-2 px-2"><h1 className="text-xl text-white font-normal text-center">This telegram web app is currently under serious update, kindly use the website <br /> <Link className="text-blue-600 font-bold" href="https://app.enetfoundation.com" target="_blank">app.enetfoundation.com</Link></h1></div>}
+      {isClient && (typeof window !== "undefined") && !!WebApp.initData.length &&
         (
           <div className="flex w-full items-center justify-center gap-2 px-2">
             <Button className="btn flex-1" onClick={() => router.push(`/authentication?type=tg`)}>Link telegram</Button>
@@ -139,8 +155,7 @@ export default function Home() {
 
             }} >Create Account</Button>
           </div>
-        )
-      */}
+        )}
     </main>
   );
 }
