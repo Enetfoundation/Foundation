@@ -94,7 +94,7 @@ export const storeTgDetails = internalMutation({
     // Check if email already exists
     const checkForMultiAccounts = await ctx.db
       .query("user")
-      .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id))
+      .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id.toString()))
       .collect();
 
 
