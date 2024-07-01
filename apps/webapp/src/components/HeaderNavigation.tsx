@@ -24,9 +24,12 @@ import { IoLibrary } from "react-icons/io5";
 import { PiFlowerLotus, PiWallFill } from "react-icons/pi";
 import { RiBookFill } from "react-icons/ri";
 import { TbDeviceWatch, TbLogout2 } from "react-icons/tb";
+import { useClient } from "@/lib/mountContext";
+import WebApp from "@twa-dev/sdk";
 
 const HeaderNavigation = () => {
   const router = useRouter();
+  const isClient = useClient();
 
   return (
     <DropdownMenu>
@@ -149,7 +152,7 @@ const HeaderNavigation = () => {
         </DropdownMenuGroup>
 
         <DropdownMenuGroup className="pt-10">
-          <DropdownMenuItem
+          {(isClient && typeof window?.Telegram !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? null : <DropdownMenuItem
             className="drop-down-item"
             onClick={async () => {
               localStorage.removeItem("fd-session");
@@ -159,7 +162,7 @@ const HeaderNavigation = () => {
             <TbLogout2 />
             Log Out
           </DropdownMenuItem>
-          <DropdownMenuItem className="drop-down-item mt-auto" disabled>
+          }          <DropdownMenuItem className="drop-down-item mt-auto" disabled>
             <button className="connect-wallet">Connect Wallet</button>
           </DropdownMenuItem>
         </DropdownMenuGroup>

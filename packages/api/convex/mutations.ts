@@ -84,9 +84,9 @@ export const storeTgDetails = internalMutation({
     console.log(args.tgInitData, ":::initData to split on");
 
     // Decode the user object
-    const splitString = args.tgInitData.split("&");
-    const userSplit = splitString[1].split("=");
-    const tgUserObject = JSON.parse(decodeURLString(userSplit[1]));
+    // const splitString = args.tgInitData.split("&");
+    // const userSplit = splitString[1].split("=");
+    const tgUserObject = JSON.parse(args.tgInitData);
 
     console.log(tgUserObject, ":::Decoded string of TG user");
 
@@ -94,11 +94,11 @@ export const storeTgDetails = internalMutation({
     // Check if email already exists
     const checkForMultiAccounts = await ctx.db
       .query("user")
-      .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id.toString()))
+      .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id?.toString()))
       .collect();
 
 
-      console.log(checkForMultiAccounts.length, checkForMultiAccounts, ":::TG Account length");
+    console.log(checkForMultiAccounts.length, checkForMultiAccounts, ":::TG Account length");
 
     // Checking if the users email already exists without being deleted
     if (
@@ -148,10 +148,74 @@ export const storeTgDetails = internalMutation({
       referralCount: 0,
       referralCode: referralCode,
       mineHours: config?.miningHours ?? 6,
+      referreeCode: args.referreCode,
       redeemableCount: 0,
       xpCount: config?.xpCount ?? 1000,
       deleted: false,
     });
+
+
+    // Increment users referree count
+    // Get new user data
+    const referree = await ctx.db
+      .query("user")
+      .withIndex("by_referreeCode", (q) =>
+        q.eq("referralCode", args?.referreCode?.toUpperCase()),
+      )
+      .first();
+
+    if (referree) {
+      // Patch referree count
+      console.log(referree, ":::Update referree xpCount");
+      const currentMultiEffectReward = referree?.multiplier
+        ? (config?.referralXpCount ?? 5000) * (referree?.multiplier / 100)
+        : 0;
+      const totalXpCount =
+        (referree?.claimedXp ?? 0) +
+        (config?.referralXpCount ?? 5000) +
+        currentMultiEffectReward +
+        (referree?.referralXp ?? 0);
+      const multiplier = activateMultiplier(totalXpCount);
+
+      await ctx.db.patch(referree?._id as Id<"user">, {
+        referralCount: Number(referree?.referralCount) + 1,
+        referralXp:
+          (config?.referralXpCount ?? 5000) +
+          currentMultiEffectReward +
+          (referree?.referralXp ?? 0),
+        xpCount: totalXpCount,
+        multiplier,
+      });
+
+      await ctx.db.insert("activity", {
+        userId: referree?._id,
+        message: `${tgUserObject?.username ?? tgUserObject?.first_name ?? tgUserObject?.last_name} Joined using your referral code`,
+        extra: (
+          (config?.referralXpCount ?? 5000) + currentMultiEffectReward
+        ).toLocaleString("en-US"),
+        type: "xp", // Can be xp and rank
+      });
+
+      // TG message
+      // if (referree?.tgUserId) {
+      //   await sendTGBotMessage(referree?.tgUserId, `${nickname} Joined using your referral code`);
+      // }
+
+      // Add multiplier activity
+      if (multiplier) {
+        await ctx.db.insert("activity", {
+          userId: referree?._id,
+          message: `You got a multiplier of ${multiplier}%`,
+          extra: `${multiplier}%`,
+          type: "xp", // Can be xp and rank
+        });
+        // TG message
+        // if (referree?.tgUserId) {
+        //   await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
+        // }
+      }
+    }
+
 
     return userId;
   },

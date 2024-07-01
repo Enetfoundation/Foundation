@@ -132,7 +132,7 @@ export default function Home() {
                   email: undefined,
                   referreeCode: refCode ? refCode : undefined,
                   type: "tg",
-                  tgInitData: WebApp.initData.toString() ?? WebApp.initDataUnsafe.toString()
+                  tgInitData: JSON.stringify(WebApp.initDataUnsafe.user)
                 });
                 // Set session before pushing
                 localStorage.setItem(

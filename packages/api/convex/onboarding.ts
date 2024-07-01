@@ -364,7 +364,7 @@ export const storeNickname = mutation({
           // Add multiplier activity
           if (multiplier) {
             await ctx.db.insert("activity", {
-              userId: userId,
+              userId: referree?._id,
               message: `You got a multiplier of ${multiplier}%`,
               extra: `${multiplier}%`,
               type: "xp", // Can be xp and rank
