@@ -97,6 +97,9 @@ export const storeTgDetails = internalMutation({
       .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id))
       .collect();
 
+
+      console.log(checkForMultiAccounts.length, checkForMultiAccounts, ":::TG Account length");
+
     // Checking if the users email already exists without being deleted
     if (
       checkForMultiAccounts.length && checkForMultiAccounts.length > 1
