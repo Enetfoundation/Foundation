@@ -41,11 +41,12 @@ export const getUserDetails = query({
       const user = await db.get(userId);
 
       if (!user) {
-        throw new ConvexError({
-          message: "No user with that id",
-          code: 404,
-          status: "failed",
-        });
+        return null;
+        // throw new ConvexError({
+        //   message: "No user with that id",
+        //   code: 404,
+        //   status: "failed",
+        // });
       }
 
       // Compute user global rank and return total user count
