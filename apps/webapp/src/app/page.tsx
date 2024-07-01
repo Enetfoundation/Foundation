@@ -18,21 +18,17 @@ import Link from "next/link";
 export default function Home() {
   const router = useRouter();
   const isClient = useClient();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const [isCreatingLoading, setIsCreatingLoading] = useState(false);
   const [entryLoader, setEntryLoader] = useState(true);
 
   const [refCode, setRefCode] = useState<string>();
 
 
-  // mentenance variable
-  const isUnderMentainance = true;
-
-
   // const refCode = searchParams.get("refCode");
   // console.log(refCode, ":::gotten referral code");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
-  const checkTgUser = useQuery(api.queries.checkTgUserAndLink, { tgInitData: (WebApp.initDataUnsafe && WebApp.initData.length) ? JSON.stringify(WebApp.initDataUnsafe) : undefined });
+  const checkTgUser = useQuery(api.queries.checkTgUserAndLink, { tgInitData: (typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? JSON.stringify(WebApp.initDataUnsafe) : undefined });
 
   useEffect(() => {
 
@@ -69,13 +65,6 @@ export default function Home() {
   }, [isClient]);
 
 
-  useEffect(() => {
-
-    if ("Adsgram" in window) {
-      console.log(window?.Adsgram, ":::Adsgram in window");
-    }
-
-  }, [isClient]);
 
   return (
     <main className="flex flex-col items-center justify-center gap-24 min-h-screen">
@@ -120,7 +109,6 @@ export default function Home() {
         /> */}
       </div>
 
-      {isUnderMentainance && <div className="flex w-full items-center justify-center gap-2 px-2"><h1 className="text-xl text-white font-normal text-center">This telegram web app is currently under serious update, kindly use the website <br /> <Link className="text-blue-600 font-bold" href="https://app.enetfoundation.com" target="_blank">app.enetfoundation.com</Link></h1></div>}
       {isClient && (typeof window !== "undefined") && !!WebApp.initData.length &&
         (
           <div className="flex w-full items-center justify-center gap-2 px-2">
@@ -141,6 +129,8 @@ export default function Home() {
               //> TODO: cerate user account with TG details
               try {
 
+                setIsCreatingLoading(true);
+
                 const userId = await creatTgUserAccount({
                   email: undefined,
                   referreeCode: refCode ? refCode : undefined,
@@ -152,8 +142,12 @@ export default function Home() {
                   "fd-session",
                   JSON.stringify({ userId: userId, isOnboarded: true, isTgUser: true }),
                 );
+                setIsCreatingLoading(false);
+
                 router.push(`/dashboard?userId=${userId}`);
               } catch (err: any) {
+                setIsCreatingLoading(false);
+
                 const message = getErrorMsg(err);
                 if (typeof window !== "undefined" && !!WebApp.initData.length) {
                   WebApp.showAlert(message);
@@ -164,8 +158,6 @@ export default function Home() {
                   })
                 }
               }
-
-
             }} >Create Account</Button>
           </div>
         )}
