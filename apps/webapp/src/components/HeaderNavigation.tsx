@@ -153,17 +153,17 @@ const HeaderNavigation = () => {
 
         <DropdownMenuGroup className="pt-10">
           {
-          //(isClient && typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? null : 
-          <DropdownMenuItem
-            className="drop-down-item"
-            onClick={async () => {
-              localStorage.removeItem("fd-session");
-              router.replace("/");
-            }}
-          >
-            <TbLogout2 />
-            Log Out
-          </DropdownMenuItem>
+            (isClient && typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? null :
+              <DropdownMenuItem
+                className="drop-down-item"
+                onClick={async () => {
+                  localStorage.removeItem("fd-session");
+                  router.replace("/");
+                }}
+              >
+                <TbLogout2 />
+                Log Out
+              </DropdownMenuItem>
           }          <DropdownMenuItem className="drop-down-item mt-auto" disabled>
             <button className="connect-wallet">Connect Wallet</button>
           </DropdownMenuItem>
