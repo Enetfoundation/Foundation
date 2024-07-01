@@ -60,14 +60,17 @@ const Dashboard = () => {
       setLoadingModalVisible(false);
     }
 
+  }, [userDetail, session?.isLoading, session, isClient, isLoadingModalVisible, setLoadingModalVisible])
 
+
+  useEffect(() => {
     if(userDetail === null) {
       localStorage.removeItem('fd-session');
       localStorage.clear();
       router.replace("/");
     }
-
-  }, [userDetail, session?.isLoading, session, isClient, isLoadingModalVisible, setLoadingModalVisible])
+    
+  }, [userDetail]);
 
 
   useEffect(() => {
