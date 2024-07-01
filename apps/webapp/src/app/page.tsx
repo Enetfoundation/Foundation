@@ -13,12 +13,17 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader } from "@/components/loader";
 import { getErrorMsg } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
   const isClient = useClient();
   const searchParams = useSearchParams();
   const [isCreatingLoading, setIsCreatingLoading] = useState(false);
+
+
+  // mentenance variable
+  const isUnderMentainance = true;
 
 
   const refCode = searchParams.get("refCode");
@@ -32,9 +37,10 @@ export default function Home() {
       const localItem = localStorage.getItem('fd-session');
       const session = localItem ? JSON.parse(localItem) : null;
 
-      if (session && session?.isOnboarded) {
-        router.replace(`/dashboard?userId=${session?.userId}`);
-      }
+      //TODO: uncomment when all fixes to referral has been done
+      // if (session && session?.isOnboarded) {
+      //   router.replace(`/dashboard?userId=${session?.userId}`);
+      // }
     } else {
       const localItem = localStorage.getItem('fd-session');
       const session = localItem ? JSON.parse(localItem) : null;
@@ -92,7 +98,9 @@ export default function Home() {
           className="invert dark:invert-0"
         /> */}
       </div>
-      {
+
+    {isUnderMentainance && <div className="flex w-full items-center justify-center gap-2 px-2"><h1 className="text-xl text-white font-normal text-center">This telegram web app is currently under serious update, kindly use the website <br/> <Link className="text-blue-600 font-bold" href="https://app.enetfoundation.com" target="_blank">app.enetfoundation.com</Link></h1></div>}
+      {/*
         isClient && (typeof window !== "undefined") && !!WebApp.initData.length &&
         (
           <div className="flex w-full items-center justify-center gap-2 px-2">
@@ -129,7 +137,7 @@ export default function Home() {
             }} >Create Account</Button>
           </div>
         )
-      }
+      */}
     </main>
   );
 }
