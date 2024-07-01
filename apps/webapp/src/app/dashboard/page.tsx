@@ -21,6 +21,7 @@ import { Loader } from "@/components/loader";
 import AdBanner from "@/components/dashboard/AdBanner";
 import WebApp from "@twa-dev/sdk";
 import { useClient } from "@/lib/mountContext";
+import {useRouter} from "next/navigation";
 
 export type EventType = Partial<Doc<"events">> & {
   company: Partial<Doc<"company">> & { logoUrl: string };
@@ -30,6 +31,7 @@ const Dashboard = () => {
   const session = useSession();
   const searchParams = useSearchParams();
   const isClient = useClient();
+  const router = useRouter();
 
   const userId = searchParams.get("userId") as string | undefined;
 
@@ -56,6 +58,13 @@ const Dashboard = () => {
     if (userDetail && typeof userDetail !== "undefined" && !session?.isLoading) {
       console.log("Session has been updated");
       setLoadingModalVisible(false);
+    }
+
+
+    if(userDetail === null) {
+      localStorage.removeItem('fd-session');
+      localStorage.clear();
+      router.replace("/");
     }
 
   }, [userDetail, session?.isLoading, session, isClient, isLoadingModalVisible, setLoadingModalVisible])
