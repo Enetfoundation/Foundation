@@ -461,7 +461,7 @@ export const isNicknameValid = mutation({
   handler: async (ctx, { nickname }) => {
     // Check if the email already exists in the user table
 
-    const users = await ctx.db.query("user").collect();
+    const users = await ctx.db.query("user").withIndex("by_nickname", q => q.eq("nickname" ,nickname)).collect();
 
     if (!users.length) return true;
 
