@@ -28,7 +28,7 @@ export default function Home() {
   // const refCode = searchParams.get("refCode");
   // console.log(refCode, ":::gotten referral code");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
-  const checkTgUser = useQuery(api.queries.checkTgUserAndLink, { tgInitData: (typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? JSON.stringify(WebApp.initDataUnsafe) : undefined });
+  const checkTgUser = useQuery(api.queries.checkTgUserAndLink, { tgInitData: (typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? JSON.stringify(WebApp.initDataUnsafe.user) : undefined });
 
   useEffect(() => {
 
