@@ -67,7 +67,7 @@ const Dashboard = () => {
       setRefLink(
         process.env.NODE_ENV === "development"
           ? `http://localhost:3000?ref=${userDetail?.referralCode}` :
-          (typeof window !== "undefined" && "WebApp" in window.Telegram && !!WebApp.initData.length) ? `https://t.me/FoundationMinerBot/foundation?refCode=${userDetail.referralCode}`
+          (typeof window !== "undefined" && "WebApp" in window.Telegram && !!WebApp.initData.length) ? `https://t.me/FoundationMinerBot/foundation?startattach=refCode:${userDetail.referralCode}`
             : `https://app.enetfoundation.com?refCode=${userDetail?.referralCode}`,
       );
     }

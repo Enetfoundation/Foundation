@@ -20,21 +20,23 @@ export default function Home() {
   const isClient = useClient();
   const searchParams = useSearchParams();
   const [isCreatingLoading, setIsCreatingLoading] = useState(false);
+  const [refCode, setRefCode] = useState<string>();
 
 
   // mentenance variable
   const isUnderMentainance = true;
 
 
-  const refCode = searchParams.get("refCode");
-  console.log(refCode, ":::gotten referral code");
+  // const refCode = searchParams.get("refCode");
+  // console.log(refCode, ":::gotten referral code");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
 
   useEffect(() => {
 
     if (typeof window !== "undefined" && !!WebApp.initData.length) {
       // WebApp.showPopup({message: "Link an existing account or create a new one with telegram user information", title: "Link/Create Account"}, (id) => {console.log(id, ":::Id of pop up")});
-      console.log(WebApp.initData, WebApp.initDataUnsafe, ":::init data inside entry page");
+      // @ts-ignore
+      console.log(WebApp.initData, WebApp.initDataUnsafe, typeof window?.Telegram?.WebAppInitData, window?.Telegram?.WebAppInitData, ":::init data inside entry page", );
       const localItem = localStorage.getItem('fd-session');
       const session = localItem ? JSON.parse(localItem) : null;
 

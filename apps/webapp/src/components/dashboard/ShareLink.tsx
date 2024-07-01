@@ -38,7 +38,7 @@ const ShareLink: FC<{ referralCode: string | undefined }> = ({ referralCode }) =
       setRefLink(
         process.env.NODE_ENV === "development"
           ? `http://localhost:3000?ref=${referralCode}` :
-          (typeof window !== "undefined" && "WebApp" in window.Telegram && !!WebApp.initData.length) ? `https://t.me/FoundationMinerBot/foundation?ref=${referralCode}`
+          (typeof window !== "undefined" && "WebApp" in window.Telegram && !!WebApp.initData.length) ? `https://t.me/FoundationMinerBot/foundation?startattach=refCode:${referralCode}`
             : `https://app.enetfoundation.com?ref=${referralCode}`,
       );
     }
