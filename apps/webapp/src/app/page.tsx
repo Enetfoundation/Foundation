@@ -69,13 +69,13 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center gap-24 min-h-screen">
       <Dialog open={entryLoader}>
-        <DialogContent hideCloseBtn className="grid items-center gap-2 justify-center shadow-none outline-none border-none">
+        <DialogContent hideCloseBtn className="grid items-center gap-2 justify-center shadow-none outline-none border-none bg-transparent">
           <Loader color="white" />
         </DialogContent>
       </Dialog>
 
       <Dialog open={isCreatingLoading}>
-        <DialogContent hideCloseBtn className="grid items-center gap-2 justify-center shadow-none outline-none border-none">
+        <DialogContent hideCloseBtn className="grid items-center gap-2 justify-center shadow-none outline-none border-none bg-transparent">
           <Loader color="white" />
           <span className="text-white text-lg font-normal text-center">Creating your foundation account...</span>
         </DialogContent>
