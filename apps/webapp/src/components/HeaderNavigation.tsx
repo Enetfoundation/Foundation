@@ -152,7 +152,9 @@ const HeaderNavigation = () => {
         </DropdownMenuGroup>
 
         <DropdownMenuGroup className="pt-10">
-          {(isClient && typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? null : <DropdownMenuItem
+          {
+          //(isClient && typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? null : 
+          <DropdownMenuItem
             className="drop-down-item"
             onClick={async () => {
               localStorage.removeItem("fd-session");

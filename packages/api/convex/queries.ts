@@ -105,15 +105,21 @@ export const checkTgUserAndLink = query({
 
     const tgUserObject = JSON.parse(tgInitData);
 
+
+    console.log(tgUserObject, tgInitData, ":::TG INIT DATA");
+
     const checkForMultiAccounts = await db
       .query("user")
       .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id?.toString()))
       .collect();
 
 
+      console.log(checkForMultiAccounts, ':::Accounts returned from check');
+
+
       if(checkForMultiAccounts.length) {
         // account already exists
-        return {isTgUser: true, userId:checkForMultiAccounts[0]._id};
+        return {isTgUser: true, userId: checkForMultiAccounts[0]._id};
       } else {
         return {isTgUser: false};
       }
