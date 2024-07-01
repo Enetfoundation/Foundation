@@ -34,7 +34,6 @@ const Authentication = ({ login, refCode, type, tgInitData }: any) => {
     defaultValues: {
       email: "",
       password: "",
-      // referral: "",
     },
   });
 

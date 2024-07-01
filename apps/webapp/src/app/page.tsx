@@ -7,7 +7,7 @@ import WebApp from "@twa-dev/sdk";
 import { MainButton } from "@twa-dev/sdk/react";
 import { useClient } from "@/lib/mountContext";
 import { Button } from "@/components/ui/button";
-import { useAction } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { api } from "@acme/api/convex/_generated/api";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader } from "@/components/loader";
@@ -32,6 +32,7 @@ export default function Home() {
   // const refCode = searchParams.get("refCode");
   // console.log(refCode, ":::gotten referral code");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
+  const checkTgUser = useQuery(api.queries.checkTgUserAndLink, { tgInitData: (WebApp.initDataUnsafe && WebApp.initData.length) ? JSON.stringify(WebApp.initDataUnsafe) : undefined });
 
   useEffect(() => {
 
@@ -123,7 +124,19 @@ export default function Home() {
       {isClient && (typeof window !== "undefined") && !!WebApp.initData.length &&
         (
           <div className="flex w-full items-center justify-center gap-2 px-2">
-            <Button className="btn flex-1" onClick={() => router.push(`/authentication?type=tg`)}>Link telegram</Button>
+            <Button className="btn flex-1" onClick={() => {
+              if (isClient && checkTgUser?.isTgUser) {
+                localStorage.setItem(
+                  "fd-session",
+                  JSON.stringify({ userId: checkTgUser?.userId, isOnboarded: true, isTgUser: checkTgUser?.isTgUser }),
+                );
+                router.push(`/dashboard?userId=${checkTgUser?.userId}`);
+
+              } else {
+                router.push(`/authentication?type=tg`);
+              }
+            }}>Link telegram</Button>
+
             <Button className="btn-username flex-1" variant="secondary" onClick={async () => {
               //> TODO: cerate user account with TG details
               try {
