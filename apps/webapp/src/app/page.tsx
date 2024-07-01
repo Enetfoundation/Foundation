@@ -7,7 +7,7 @@ import WebApp from "@twa-dev/sdk";
 import { MainButton } from "@twa-dev/sdk/react";
 import { useClient } from "@/lib/mountContext";
 import { Button } from "@/components/ui/button";
-import { useAction, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "@acme/api/convex/_generated/api";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader } from "@/components/loader";
@@ -28,7 +28,7 @@ export default function Home() {
   // const refCode = searchParams.get("refCode");
   // console.log(refCode, ":::gotten referral code");
   const creatTgUserAccount = useAction(api.onboarding.initializeNewUser);
-  const checkTgUser = useQuery(api.queries.checkTgUserAndLink, { tgInitData: (typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? JSON.stringify(WebApp.initDataUnsafe.user) : undefined });
+  const checkTgUser = useMutation(api.mutations.checkTgUserAndLink);
 
   useEffect(() => {
 
@@ -112,15 +112,21 @@ export default function Home() {
       {isClient && (typeof window !== "undefined") && !!WebApp.initData.length &&
         (
           <div className="flex w-full items-center justify-center gap-2 px-2">
-            <Button className="btn flex-1" onClick={() => {
-              if (isClient && checkTgUser?.isTgUser) {
+            <Button className="btn flex-1" onClick={async () => {
+              setEntryLoader(true);
+              const tgUser = await checkTgUser({ tgInitData: (typeof window !== "undefined" && WebApp.initDataUnsafe && WebApp.initData.length) ? JSON.stringify(WebApp.initDataUnsafe.user) : undefined })
+              if (isClient && tgUser?.isTgUser) {
                 localStorage.setItem(
                   "fd-session",
-                  JSON.stringify({ userId: checkTgUser?.userId, isOnboarded: true, isTgUser: checkTgUser?.isTgUser }),
+                  JSON.stringify({ userId: tgUser?.userId, isOnboarded: true, isTgUser: tgUser?.isTgUser }),
                 );
-                router.push(`/dashboard?userId=${checkTgUser?.userId}`);
+                setEntryLoader(false);
+
+                router.push(`/dashboard?userId=${tgUser?.userId}`);
 
               } else {
+                setEntryLoader(false);
+
                 router.push(`/authentication?type=tg`);
               }
             }}>Link telegram</Button>

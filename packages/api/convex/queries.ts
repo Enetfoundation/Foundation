@@ -96,41 +96,6 @@ export const getUserWithEmail = internalQuery({
 });
 
 
-export const checkTgUserAndLink = query({
-  args: {tgInitData: v.optional(v.string())},
-  handler: async ({db}, {tgInitData}) => {
-
-
-    if(tgInitData) {
-
-    const tgUserObject = JSON.parse(tgInitData);
-
-
-    console.log(tgUserObject, tgInitData, ":::TG INIT DATA");
-
-    const checkForMultiAccounts = await db
-      .query("user")
-      .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id?.toString()))
-      .collect();
-
-
-      console.log(checkForMultiAccounts, ':::Accounts returned from check');
-
-
-      if(checkForMultiAccounts.length) {
-        // account already exists
-        return {isTgUser: true, userId: checkForMultiAccounts[0]._id};
-      } else {
-        return {isTgUser: false};
-      }
-      
-    } else {
-      return {isTgUser: false};
-    }
-
-    
-  }
-})
 
 // Get user detials with Nickname
 export const getUserWithNickname = internalQuery({
