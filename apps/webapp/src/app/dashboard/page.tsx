@@ -79,8 +79,6 @@ const Dashboard = () => {
 
   }, [])
 
-
-
   // toggle loader modal
   useEffect(() => {
 
@@ -92,7 +90,6 @@ const Dashboard = () => {
     }
 
   }, [userDetail, session?.isLoading, session, isClient, isLoadingModalVisible, setLoadingModalVisible])
-
 
   useEffect(() => {
     if (userDetail) {

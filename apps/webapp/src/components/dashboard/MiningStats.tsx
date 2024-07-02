@@ -50,18 +50,18 @@ const MiningStats: FC<Mining> = ({ mined, mining, mineHours, time, rate, userId,
       className="h-fit gap-2 bg-white py-4 text-black"
       // disabled
       onClick={() => {
-        if (adRef.current) {
-          // @ts-ignore
-          adRef.current?.show()
-            .then((result: any) => {
-              // fires when ad ends
-              console.log(result, ":::Ads end result");
-            })
-            .catch((result: any) => {
-              console.log(result, ":::Ad skip or error result");
-            });
+        // if (adRef.current) {
+        //   // @ts-ignore
+        //   adRef.current?.show()
+        //     .then((result: any) => {
+        //       // fires when ad ends
+        //       console.log(result, ":::Ads end result");
+        //     })
+        //     .catch((result: any) => {
+        //       console.log(result, ":::Ad skip or error result");
+        //     });
 
-        }
+        // }
         toast({
           title: "There is a mining session currently active",
         });
@@ -79,18 +79,6 @@ const MiningStats: FC<Mining> = ({ mined, mining, mineHours, time, rate, userId,
         color: userDetail?.mineActive ? "black" : "white",
       }}
       onClick={async () => {
-        if (adRef.current) {
-          // @ts-ignore
-          adRef.current?.show()
-            .then((result: any) => {
-              // fires when ad ends
-              console.log(result, ":::Ads end result");
-            })
-            .catch((result: any) => {
-              console.log(result, ":::Ad skip or error result");
-            });
-
-        }
 
         if (userDetail && userDetail.redeemableCount <= 0 && !userDetail?.mineActive) {
           await triggerMiner({
@@ -103,6 +91,18 @@ const MiningStats: FC<Mining> = ({ mined, mining, mineHours, time, rate, userId,
           toast({
             title: "Mine reward successfully claimed!",
           });
+          if (adRef.current) {
+            // @ts-ignore
+            adRef.current?.show()
+              .then((result: any) => {
+                // fires when ad ends
+                console.log(result, ":::Ads end result");
+              })
+              .catch((result: any) => {
+                console.log(result, ":::Ad skip or error result");
+              });
+
+          }
         }
       }}
     >
