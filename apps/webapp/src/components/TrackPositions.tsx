@@ -15,9 +15,8 @@ const TrackPositions: FC<{
               idx <= 2 && (
                 <li className="flex items-center gap-2" key={idx}>
                   <div
-                    className={`flex items-center justify-between ${
-                      idx == 0 && "w-[65%] bg-[#268f9b]"
-                    } ${idx == 1 && "w-[55%] bg-[#5F37E6]"} ${idx == 2 && "w-[45%] bg-black"} rounded-r-3xl p-2 pl-3`}
+                    className={`flex items-center justify-between ${idx == 0 && "w-[65%] bg-[#268f9b]"
+                      } ${idx == 1 && "w-[55%] bg-[#5F37E6]"} ${idx == 2 && "w-[45%] bg-black"} rounded-r-3xl p-2 pl-3`}
                   >
                     <div className="flex items-center">
                       <span className="flex items-center gap-2 text-base font-bold text-white">
@@ -146,10 +145,10 @@ const TrackPositions: FC<{
           </div>
           <div className="flex justify-between gap-1 rounded-lg bg-white p-1 text-center dark:bg-black">
             <h3>
-              {Number(leaderBoards?.globalRank ?? 0).toLocaleString("en-US", {
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 2,
-              })}
+              {Number(leaderBoards?.user?.rank ?? 0).toLocaleString("en-US", {
+                maximumFractionDigits: 0,
+                minimumFractionDigits: 0,
+              })}{leaderBoards?.user?.rank >= 50 ? '+' : null}
             </h3>
             {/*<span className="h-full w-[1px] bg-black dark:bg-white"></span>
             <h3>

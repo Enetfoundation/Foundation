@@ -71,6 +71,7 @@ export default defineSchema(
       ),
       deleted: v.optional(v.boolean()),
       lastActive: v.optional(v.number()),
+      rank: v.optional(v.number()),
     })
       .index("by_xpCount", ["xpCount"])
       .index("by_referreeCode", ["referralCode"])
@@ -82,6 +83,8 @@ export default defineSchema(
       .index("by_claimedXp_xpCount", ["claimedXp", "xpCount"])
       .index("by_mineActive", ["mineActive"])
       .index("by_deleted", ["deleted"])
+      .index("by_rank", ["rank"])
+      .index("by_rank_xpCount", ["rank", "xpCount"])
       .index("by_deleted_xpCount", ['deleted', "xpCount"]),
     activity: defineTable({
       userId: v.id("user"),

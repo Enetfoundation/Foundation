@@ -41,42 +41,20 @@ export const getUserDetails = query({
       const user = await db.get(userId);
 
       if (!user) {
-        return null;
-        // throw new ConvexError({
-        //   message: "No user with that id",
-        //   code: 404,
-        //   status: "failed",
-        // });
+        // return null;
+        throw new ConvexError({
+          message: "No user with that id",
+          code: 404,
+          status: "failed",
+        });
       }
 
-      // Compute user global rank and return total user count
-      // const totalUserCount = (
-      //   await db
-      //     .query("user")
-      //     .withIndex("by_deleted", (q: any) => q.eq("deleted", false)
-      //     .collect()
-      // ).length;
-      const users = await db.query("user")
-        .withIndex("by_deleted_xpCount", (q) => q.eq("deleted", false).gt('xpCount', 5000))
-        .order("desc")
-        .take(50);
-      const indexedUserCount = users.length;
-      const globalRank = calculateRank(
-        users,
-        user?._id,
-      );
-
-      return { ...user, indexedUserCount, globalRank };
+      return user;
     }
   },
 });
 
-function calculateRank(users: any[], userId: Id<"user">): number {
-  const sortedUsers = users.slice().sort((a, b) => b.xpCount - a.xpCount);
-  const userIndex = sortedUsers.findIndex((user) => user._id === userId);
-  const rank = userIndex < 0 ? 50 : userIndex + 1;
-  return rank; // Adding 1 because array index starts from 0 but rank starts from 1
-}
+
 
 // Get user details with email
 export const getUserWithEmail = internalQuery({
@@ -131,28 +109,18 @@ export const getLeaderBoard = query({
 
       const rankedUsers = await db
         .query("user")
-        .withIndex("by_xpCount", (q) => q.gt("xpCount", 100000))
+        .withIndex("by_rank_xpCount", (q) => q.lte("rank", 10))
         .filter((q) => q.eq(q.field("deleted"), false))
         .order("desc")
         .take(10);
-
-      const users = await db
-        .query("user")
-        .withIndex("by_deleted", (q) => q.eq("deleted", false))
-        .collect();
-
 
       const sortedUsers = rankedUsers
         .slice()
         .sort((a, b) => b.xpCount - a.xpCount);
 
-      const globalRank = calculateRank(users, user?._id);
-
       return {
         user,
         sortedUsers,
-        globalRank,
-        totalUsers: users.length,
       };
     }
   },

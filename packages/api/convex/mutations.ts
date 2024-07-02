@@ -223,38 +223,38 @@ export const storeTgDetails = internalMutation({
 });
 
 export const checkTgUserAndLink = mutation({
-  args: {tgInitData: v.optional(v.string())},
-  handler: async ({db}, {tgInitData}) => {
+  args: { tgInitData: v.optional(v.string()) },
+  handler: async ({ db }, { tgInitData }) => {
 
 
-    if(tgInitData) {
+    if (tgInitData) {
 
-    const tgUserObject = JSON.parse(tgInitData);
+      const tgUserObject = JSON.parse(tgInitData);
 
 
-    console.log(tgUserObject, tgInitData, ":::TG INIT DATA");
+      console.log(tgUserObject, tgInitData, ":::TG INIT DATA");
 
-    const checkForMultiAccounts = await db
-      .query("user")
-      .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id?.toString()))
-      .collect();
+      const checkForMultiAccounts = await db
+        .query("user")
+        .withIndex("by_tgUserId", (q) => q.eq("tgUserId", tgUserObject?.id?.toString()))
+        .collect();
 
 
       console.log(checkForMultiAccounts, ':::Accounts returned from check');
 
 
-      if(checkForMultiAccounts.length) {
+      if (checkForMultiAccounts.length) {
         // account already exists
-        return {isTgUser: true, userId: checkForMultiAccounts[0]._id};
+        return { isTgUser: true, userId: checkForMultiAccounts[0]._id };
       } else {
-        return {isTgUser: false};
+        return { isTgUser: false };
       }
-      
+
     } else {
-      return {isTgUser: false};
+      return { isTgUser: false };
     }
 
-    
+
   }
 })
 
@@ -1067,6 +1067,34 @@ export const activateBoost = mutation({
     }
   },
 });
+
+
+// compute rank and shuffle update to users rank column
+export const reshuffleRank = internalMutation({
+  args: {},
+  handler: async ({ db }) => {
+
+    console.log("Reshuffle starting.....");
+
+    // get the top 50 by xpCount
+    const users = await db.query("user")
+      .withIndex("by_deleted_xpCount", (q) => q.eq("deleted", false).gt('xpCount', 5000))
+      .order("desc")
+      .take(50);
+    // const indexedUserCount = users.length;
+    const sortedUsers = users.slice().sort((a, b) => b.xpCount - a.xpCount);
+
+    for (const user of sortedUsers) {
+      const userIndex = sortedUsers.findIndex((u) => u._id === user?._id);
+      const rank = userIndex < 0 ? 50 : userIndex + 1;
+
+      await db.patch(user?._id, {rank});
+
+    }
+
+  },
+});
+
 
 export function activateMultiplier(currentXpCount: number): number | undefined {
   // Check against array of multiplier values
