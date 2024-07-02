@@ -111,29 +111,30 @@ export const storeTgDetails = internalMutation({
       });
     }
 
-    // Fetch dangling user details after deleted account
-    const previouslyDeleted = await ctx.db
-      .query("user")
-      .withIndex("by_tgUserId_deleted", (q) =>
-        q.eq("tgUserId", tgUserObject?.id).eq("deleted", true),
-      )
-      .unique();
+    // // Fetch dangling user details after deleted account
+    // const previouslyDeleted = await ctx.db
+    //   .query("user")
+    //   .withIndex("by_tgUserId_deleted", (q) =>
+    //     q.eq("tgUserId", tgUserObject?.id).eq("deleted", true),
+    //   )
+    //   .unique();
 
-    // If user was previously deleted update fields
-    if (previouslyDeleted) {
-      await ctx.db.patch(previouslyDeleted._id, {
-        ...previouslyDeleted,
-        minedCount: 0,
-        miningRate: config?.miningCount,
-        mineActive: false,
-        referralCount: 0,
-        mineHours: config?.miningHours ?? 6,
-        redeemableCount: 0,
-        xpCount: config?.xpCount ?? 1000,
-      });
+    // // If user was previously deleted update fields
+    // if (previouslyDeleted) {
+    //   await ctx.db.patch(previouslyDeleted._id, {
+    //     ...previouslyDeleted,
+    //     minedCount: 0,
+    //     miningRate: config?.miningCount,
+    //     mineActive: false,
+    //     referralCount: 0,
+    //     mineHours: config?.miningHours ?? 6,
+    //     redeemableCount: 0,
+    //     xpCount: config?.xpCount ?? 1000,
+    // delete: false,
+    //   });
 
-      return previouslyDeleted._id;
-    }
+    //   return previouslyDeleted._id;
+    // }
 
 
     const referralCode = generateReferralCode();
