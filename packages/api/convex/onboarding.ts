@@ -167,9 +167,9 @@ export const linkTelegram = internalAction({
 
     console.log(initData, ":::initData to split on");
     // Decode the user object
-    const splitString = initData.split("&");
-    const userSplit = splitString[1].split("=");
-    const userObject = JSON.parse(decodeURLString(userSplit[1]));
+    // const splitString = initData.split("&");
+    // const userSplit = splitString[1].split("=");
+    const userObject = JSON.parse(initData);
 
     console.log(userObject, ":::Decoded string of user");
 
@@ -185,18 +185,18 @@ export const linkTelegram = internalAction({
 });
 
 
-export const onboardTgUser = mutation({
-  args: { initData: v.string() },
-  handler: async ({ db }, { initData }) => {
-    //> decode user data
-    //> store username
-    console.log(decodeURLString(initData), ":::encoded string passed in from");
-  }
-})
+// export const onboardTgUser = mutation({
+//   args: { initData: v.string() },
+//   handler: async ({ db }, { initData }) => {
+//     //> decode user data
+//     //> store username
+//     console.log(decodeURLString(initData), ":::encoded string passed in from");
+//   }
+// })
 
-export const decodeURLString = (encodedString: string): string => {
-  return decodeURIComponent(encodedString);
-};
+// export const decodeURLString = (encodedString: string): string => {
+//   return decodeURIComponent(encodedString);
+// };
 
 // const authFromTelegram = (initData: string): boolean => {
 //   const splitInitString = initData.split("&");
