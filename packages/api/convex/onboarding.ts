@@ -108,7 +108,7 @@ export const storePassword = action({
 export const loginUser = action({
   args: { email: v.string(), password: v.string(), type: v.optional(v.union(v.literal("tg"), v.literal("twitter"), v.literal("google"))), tgInitData: v.optional(v.string()) },
   handler: async ({ runQuery, runMutation, runAction }, { email, password, type, tgInitData, }) => {
-    // console.log(email, "::::Loging email");
+    console.log(email, type, tgInitData, "::::Loging email");
     try {
       const user: any = await runQuery(internal.queries.getUserWithEmail, {
         email: email.toLowerCase(),
