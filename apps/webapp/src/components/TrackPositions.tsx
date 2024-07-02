@@ -145,10 +145,10 @@ const TrackPositions: FC<{
           </div>
           <div className="flex justify-between gap-1 rounded-lg bg-white p-1 text-center dark:bg-black">
             <h3>
-              {Number(leaderBoards?.user?.rank ?? 0).toLocaleString("en-US", {
+              {Number(leaderBoards?.user?.rank ?? 50).toLocaleString("en-US", {
                 maximumFractionDigits: 0,
                 minimumFractionDigits: 0,
-              })}{leaderBoards?.user?.rank >= 50 ? '+' : null}
+              })}{leaderBoards?.user?.rank >= 50 || typeof leaderBoards?.user?.rank === "undefined" ? '+' : null}
             </h3>
             {/*<span className="h-full w-[1px] bg-black dark:bg-white"></span>
             <h3>

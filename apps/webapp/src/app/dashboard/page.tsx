@@ -123,7 +123,7 @@ const Dashboard = () => {
       />
       <h3 className="mb-2 mt-7 text-base font-semibold">Overview</h3>
       <Overview
-        rank={userDetail?.rank ?? 1000}
+        rank={userDetail?.rank ?? 50}
         referrals={userDetail?.referralCount ?? 16}
         users={0}
         referralCode={refLink ?? "gzrhjtw5"}
