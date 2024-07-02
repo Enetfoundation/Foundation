@@ -102,7 +102,7 @@ export const storeTgDetails = internalMutation({
 
     // Checking if the users email already exists without being deleted
     if (
-      checkForMultiAccounts.length && checkForMultiAccounts.length > 1
+      checkForMultiAccounts.length
     ) {
       throw new ConvexError({
         message: "Telegram account already exists",
