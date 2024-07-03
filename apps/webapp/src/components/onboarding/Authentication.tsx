@@ -57,7 +57,7 @@ const Authentication = ({ login, refCode, type, tgInitData }: any) => {
           email: values.email,
           password: values?.password,
           type: type ?? undefined,
-          tgInitData: tgInitData.toString() ?? undefined
+          tgInitData: tgInitData? tgInitData.toString() : undefined
         });
         // Set session before pushing
         localStorage.setItem(
