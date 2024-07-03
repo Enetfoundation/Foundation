@@ -173,10 +173,19 @@ export const linkTelegram = internalAction({
 
     console.log(userObject, ":::Decoded string of user");
 
+
+    // if(!userObject?.username || !userObject?.username?.length || !userObject?.first_name.length || !userObject?.last_name.length) {
+    //   throw new ConvexError({
+    //     status: "failed",
+    //     code: 400,
+    //     message: "Could not find a telegram username, first name or last name, plesae ensure to set these details on telegram before proceeding",
+    //   })
+    // }
+
     //> store tgUsername
     await runMutation(internal.onboarding.updateUserTgObject, {
       userId: userId,
-      tgUsername: userObject?.username,
+      tgUsername: userObject?.username ?? undefined,
       tgUserId: userObject?.id.toString(),
     });
     //> return userId to be stored in telegram
@@ -223,7 +232,7 @@ export const linkTelegram = internalAction({
 // };
 
 export const updateUserTgObject = internalMutation({
-  args: { userId: v.id("user"), tgUsername: v.string(), tgUserId: v.string() },
+  args: { userId: v.id("user"), tgUsername: v.optional(v.string()), tgUserId: v.string() },
   handler: async ({ db }, { userId, tgUserId, tgUsername }) => {
     await db.patch(userId, { tgUsername: tgUsername, tgUserId: tgUserId });
   },
