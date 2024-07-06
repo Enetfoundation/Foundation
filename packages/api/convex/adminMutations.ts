@@ -1,6 +1,7 @@
 import { mutationWithAuth } from "@convex-dev/convex-lucia-auth";
 import { ConvexError, v } from "convex/values";
-import { internalMutation } from "./_generated/server";
+import { internalAction, internalQuery, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 
 // Write your Convex functions in any file inside this directory (`convex`).
@@ -221,14 +222,10 @@ export const deleteCompany = mutationWithAuth({
 
 
 // internal mutation called by cron to update user stats
-export const updateUserStats = internalMutation({
+export const updateUserStats = internalAction({
   args: {},
-  handler: async ({ db }) => {
-    const stats = await db.query("userStats").first();
-    const users: Doc<"user">[] = await db.query("user")
-      .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
-      // .filter((q: any) => q.eq(q.field("deleted"), false))
-      .order("asc").collect();
+  handler: async ({ runQuery, runMutation }) => {
+    const { stats, users } = await runQuery(internal.adminMutations.getUsers);
 
     // Filter and extract
     const totalMined = users.reduce((c, obj) => c + (obj.minedCount ?? 0), 0);
@@ -240,10 +237,32 @@ export const updateUserStats = internalMutation({
     const totalUsers = users.length ?? 0;
     // const recentUsers = users.slice(0, 5) ?? 0;
 
-
     if (stats) {
-      await db.patch(stats?._id, { totalMined, totalXp, totalReferrals, totalUsers });
+      runMutation(internal.adminMutations.updateStats, { id: stats._id, data: { totalMined, totalReferrals, totalUsers, totalXp } });
+    }
+
+  }
+});
+
+
+export const updateStats = internalMutation({
+  args: { id: v.id("userStats"), data: v.object({ totalMined: v.number(), totalXp: v.number(), totalReferrals: v.number(), totalUsers: v.number() }) },
+  handler: async ({ db }, args) => {
+    if (args.id) {
+      await db.patch(args.id, { ...args.data });
     }
   }
-})
+});
+
+
+export const getUsers = internalQuery({
+  args: {},
+  handler: async ({ db }) => {
+    const stats = await db.query("userStats").first();
+    const users: Doc<"user">[] = await db.query("user")
+      .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
+      .order("asc").collect();
+    return { stats, users };
+  }
+});
 

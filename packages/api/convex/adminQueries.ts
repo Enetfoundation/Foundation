@@ -6,7 +6,7 @@ import { internalMutation, query } from "./_generated/server";
 export const dashboardData = queryWithAuth({
   args: {},
   handler: async ({ db }) => {
-    return await db.query("userStats").collect();
+    return await db.query("userStats").first();
   },
 });
 
