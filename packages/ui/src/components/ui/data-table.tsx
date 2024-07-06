@@ -42,6 +42,7 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  paginationControls?: any;
   filterVisible?: boolean;
   extra?: React.ReactNode;
 }
@@ -49,6 +50,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  paginationControls,
   filterVisible = true,
   extra,
 }: DataTableProps<TData, TValue>) {

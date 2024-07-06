@@ -198,6 +198,9 @@ export default function Users() {
     },
   ];
 
+
+  console.log({...userList, result: undefined}, "::: userlist with result as undefined");
+
   return (
     <MainLayout>
       <div className="mt-5 flex w-full flex-col gap-8">
@@ -215,7 +218,7 @@ export default function Users() {
                 <UserNav />
               </div> */}
           </div>
-          <DataTable data={userList.results ?? []} columns={columns} />
+          <DataTable data={userList.results ?? []} columns={columns} paginationControls={{...userList, result: undefined}} />
         </div>
       </div>
     </MainLayout>
