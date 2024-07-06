@@ -1,11 +1,13 @@
 import { queryWithAuth } from "@convex-dev/convex-lucia-auth";
 import { Id, Doc } from "./_generated/dataModel";
+import { paginationOptsValidator } from "convex/server";
+import { query } from "./_generated/server";
 
 export const dashboardData = queryWithAuth({
   args: {},
   handler: async ({ db }) => {
     const users: Doc<"user">[] = await db.query("user")
-    .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
+      .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
       // .filter((q: any) => q.eq(q.field("deleted"), false))
       .order("asc").collect();
 
@@ -23,12 +25,12 @@ export const dashboardData = queryWithAuth({
   },
 });
 
-export const fetchUsers = queryWithAuth({
-  args: {},
-  handler: async (ctx) => {
+export const fetchUsers = query({
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
     return await ctx.db.query("user")
       .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
-      .collect();
+      .paginate(args.paginationOpts);
   },
 });
 

@@ -21,13 +21,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@acme/ui/src/components/ui/dropdown-menu";
+import { usePaginatedQuery } from "convex/react";
 
 export default function Users() {
   type UserType = Omit<
     Doc<"user">,
     "speedBoost" | "botBoost" | "password" | "otpSecret" | "miningStartTime"
   >;
-  const users = useQueryWithAuth(api.adminQueries.fetchUsers, {});
+  const userList = usePaginatedQuery(api.adminQueries.fetchUsers, {}, {initialNumItems: 10});
   const deleteUser = useMutationWithAuth(api.adminMutations.deleteUserWithId);
 
   const columns: ColumnDef<UserType>[] = [
@@ -104,7 +105,7 @@ export default function Users() {
       header: "Referred by",
       accessorKey: "referreeCode",
       cell: ({ row }) => {
-        const referree = users?.find(
+        const referree = userList.results?.find(
           (val) => val?.referralCode === row?.getValue("referreeCode"),
         );
 
@@ -214,7 +215,7 @@ export default function Users() {
                 <UserNav />
               </div> */}
           </div>
-          <DataTable data={users ?? []} columns={columns} />
+          <DataTable data={userList.results ?? []} columns={columns} />
         </div>
       </div>
     </MainLayout>
