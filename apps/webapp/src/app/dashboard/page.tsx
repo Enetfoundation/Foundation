@@ -48,36 +48,36 @@ const Dashboard = () => {
   const [isLoadingModalVisible, setLoadingModalVisible] = useState(session?.isLoading && typeof userDetail === "undefined" ? true : false);
   // refLInk
   const [refLink, setRefLink] = useState<string>();
-  const adRef = useRef(null);
+  // const adRef = useRef(null);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if ("Adsgram" in window) {
-      console.log(window.Adsgram, ":::Adsgram initialised in window");
-      // @ts-ignore
-      adRef.current = window.Adsgram.init({ blockId: '331' });
-    }
+  //   if ("Adsgram" in window) {
+  //     console.log(window.Adsgram, ":::Adsgram initialised in window");
+  //     // @ts-ignore
+  //     adRef.current = window.Adsgram.init({ blockId: '331' });
+  //   }
 
-  }, [isClient]);
+  // }, [isClient]);
 
 
-  // show add when page loads
-  useEffect(() => {
+  // // show add when page loads
+  // useEffect(() => {
 
-    if (adRef.current) {
-      // @ts-ignore
-      adRef.current?.show()
-        .then((result: any) => {
-          // fires when ad ends
-          console.log(result, ":::Ads end result");
-        })
-        .catch((result: any) => {
-          console.log(result, ":::Ad skip or error result");
-        });
+  //   if (adRef.current) {
+  //     // @ts-ignore
+  //     adRef.current?.show()
+  //       .then((result: any) => {
+  //         // fires when ad ends
+  //         console.log(result, ":::Ads end result");
+  //       })
+  //       .catch((result: any) => {
+  //         console.log(result, ":::Ad skip or error result");
+  //       });
 
-    }
+  //   }
 
-  }, [])
+  // }, [])
 
   // toggle loader modal
   useEffect(() => {
