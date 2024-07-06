@@ -199,7 +199,7 @@ export default function Users() {
   ];
 
 
-  console.log({...userList, result: undefined}, "::: userlist with result as undefined");
+  console.log({...userList, results: undefined}, "::: userlist with result as undefined");
 
   return (
     <MainLayout>
@@ -218,7 +218,7 @@ export default function Users() {
                 <UserNav />
               </div> */}
           </div>
-          <DataTable data={userList.results ?? []} columns={columns} paginationControls={{...userList, result: undefined}} />
+          <DataTable data={userList.results ?? []} columns={columns} paginationControls={{...userList, results: undefined}} />
         </div>
       </div>
     </MainLayout>
