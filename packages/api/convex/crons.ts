@@ -30,6 +30,18 @@ crons.daily(
     minuteUTC: 30
   },
   internal.mutations.reshuffleRank
+);
+
+
+// TODO: Update the user stats daily for admin
+crons.daily(
+  "Update user stats for admin dashboard",
+  {
+    hourUTC: 12,
+    minuteUTC: 30
+  },
+  internal.adminMutations.updateUserStats
 )
+
 
 export default crons;

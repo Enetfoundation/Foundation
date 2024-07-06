@@ -173,6 +173,13 @@ export default defineSchema(
         ),
       ),
     }),
+    userStats: defineTable({
+      totalMined: v.number(),
+      totalXp: v.float64(),
+      totalReferrals: v.number(),
+      totalUsers: v.number(),
+      // recentUsers: v.number(),
+    })
   },
   // If you ever get an error about schema mismatch
   // between your data and your schema, and you cannot

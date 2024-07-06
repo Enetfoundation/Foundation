@@ -1,29 +1,15 @@
 import { queryWithAuth } from "@convex-dev/convex-lucia-auth";
 import { Id, Doc } from "./_generated/dataModel";
 import { paginationOptsValidator } from "convex/server";
-import { query } from "./_generated/server";
+import { internalMutation, query } from "./_generated/server";
 
 export const dashboardData = queryWithAuth({
   args: {},
   handler: async ({ db }) => {
-    const users: Doc<"user">[] = await db.query("user")
-      .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
-      // .filter((q: any) => q.eq(q.field("deleted"), false))
-      .order("asc").collect();
-
-    // Filter and extract
-    const totalMined = users.reduce((c, obj) => c + (obj.minedCount ?? 0), 0);
-    const totalXp = users.reduce((c, obj) => c + (obj.xpCount ?? 0), 0);
-    const totalReferrals = users.reduce(
-      (c, obj) => c + (obj.referralCount ?? 0),
-      0
-    );
-    const totalUsers = users.length;
-    const recentUsers = users.slice(0, 5);
-
-    return { totalMined, totalXp, totalReferrals, totalUsers, recentUsers };
+    return await db.query("userStats").collect();
   },
 });
+
 
 export const fetchUsers = query({
   args: { paginationOpts: paginationOptsValidator },

@@ -1,5 +1,7 @@
 import { mutationWithAuth } from "@convex-dev/convex-lucia-auth";
 import { ConvexError, v } from "convex/values";
+import { internalMutation } from "./_generated/server";
+import { Doc } from "./_generated/dataModel";
 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
@@ -215,3 +217,33 @@ export const deleteCompany = mutationWithAuth({
   args: { companyId: v.id("company") },
   handler: async (ctx, args) => await ctx.db.delete(args.companyId),
 });
+
+
+
+// internal mutation called by cron to update user stats
+export const updateUserStats = internalMutation({
+  args: {},
+  handler: async ({ db }) => {
+    const stats = await db.query("userStats").first();
+    const users: Doc<"user">[] = await db.query("user")
+      .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
+      // .filter((q: any) => q.eq(q.field("deleted"), false))
+      .order("asc").collect();
+
+    // Filter and extract
+    const totalMined = users.reduce((c, obj) => c + (obj.minedCount ?? 0), 0);
+    const totalXp = users.reduce((c, obj) => c + (obj.xpCount ?? 0), 0);
+    const totalReferrals = users.reduce(
+      (c, obj) => c + (obj.referralCount ?? 0),
+      0
+    );
+    const totalUsers = users.length ?? 0;
+    // const recentUsers = users.slice(0, 5) ?? 0;
+
+
+    if (stats) {
+      await db.patch(stats?._id, { totalMined, totalXp, totalReferrals, totalUsers });
+    }
+  }
+})
+

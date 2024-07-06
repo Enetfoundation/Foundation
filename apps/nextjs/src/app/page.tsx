@@ -32,7 +32,7 @@ export default function Home() {
             <Overview />
           </CardContent>
         </Card>
-        <Card className="col-span-3">
+        {/*        <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Users</CardTitle>
             <CardDescription>New users onboarded.</CardDescription>
@@ -41,7 +41,7 @@ export default function Home() {
             <RecentUsers recentUsers={data ? data.recentUsers : undefined} />
           </CardContent>
         </Card>
-      </div>
+*/}      </div>
     </MainLayout>
   );
 }
