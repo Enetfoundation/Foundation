@@ -493,10 +493,10 @@ export const insertOrPatch = internalMutation({
 })
 
 // Reward after event actions have been completed
-export const rewardEventXp = mutation({
+export const rewardEventXp = action({
   args: { xpCount: v.number(), userId: v.id("user"), eventId: v.id("events") },
-  handler: async ({ db }, { xpCount, userId, eventId }) => {
-    const user = await db.get(userId);
+  handler: async ({ runQuery, runMutation }, { xpCount, userId, eventId }) => {
+    const user = await runQuery(internal.mutations.getUser, { userId });
 
     if (!user) {
       throw new ConvexError({
@@ -552,26 +552,32 @@ export const rewardEventXp = mutation({
     const multiplier = activateMultiplier(totalXpCount);
 
     // Add xp and and reward user
-    await db.patch(userId, {
-      claimedXp: (user?.claimedXp ?? 0) + xpCount + currentMultiEffectReward,
-      eventsJoined: udpatedEvents,
-      xpCount: totalXpCount,
-      multiplier,
+    await runMutation(internal.mutations.insertOrPatch, {
+      type: "patch", patchId: userId, data: {
+        claimedXp: (user?.claimedXp ?? 0) + xpCount + currentMultiEffectReward,
+        eventsJoined: udpatedEvents,
+        xpCount: totalXpCount,
+        multiplier,
+      }
     });
 
     // Add multiplier activity
     if (multiplier) {
-      await db.insert("activity", {
-        userId: userId,
-        message: `You got a multiplier of ${multiplier}%`,
-        extra: `${multiplier}%`,
-        type: "xp", // Can be xp and rank
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "insert", insertTableName: "activity", data: {
+          userId: userId,
+          message: `You got a multiplier of ${multiplier}%`,
+          extra: `${multiplier}%`,
+          type: "xp", // Can be xp and rank
+        }
       });
 
 
-      // if (user?.tgUserId) {
-      //   await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
-      // }
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`)
+          .then((val) => console.log(val, ":::send tg bot msg"))
+          .catch((err) => console.log(err, ":::error sending tg bot"));
+      }
     }
   },
 });

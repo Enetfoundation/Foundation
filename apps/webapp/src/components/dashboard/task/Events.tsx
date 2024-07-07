@@ -19,7 +19,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "@/lib/sessionContext";
 import { delay, getErrorMsg } from "@/lib/utils";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { Shovel } from "lucide-react";
 import { BsGlobe } from "react-icons/bs";
 import { FaDiscord, FaTelegramPlane } from "react-icons/fa";
@@ -46,7 +46,7 @@ const Events: FC<{ userDetails: Doc<"user"> | null | undefined }> = ({ userDetai
   const user = userDetails;
 
   // Event interaction api functions
-  const completeEvent = useMutation(api.mutations.rewardEventXp);
+  const completeEvent = useAction(api.mutations.rewardEventXp);
   const updateEventTaskStatus = useMutation(api.mutations.updateEventsForUser);
 
   // Loader controls
