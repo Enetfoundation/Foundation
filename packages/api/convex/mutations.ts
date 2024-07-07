@@ -455,7 +455,7 @@ export const rewardTaskXp = action({
 
 
       if (user?.tgUserId) {
-        sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`)
+        await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`)
           .then((val) => console.log(val, ":::sent tg msg"))
           .catch((err) => console.log(err, ":::error sending tg msg"));
       }
@@ -862,7 +862,7 @@ export const claimRewards = action({
 
 
       if (user?.tgUserId) {
-        sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`)
+        await sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`)
           .then((val) => console.log(val, ":::Tg Message sent"))
           .catch((err) => console.log(err, ":::Errir occurred sending TG message"));
       }
