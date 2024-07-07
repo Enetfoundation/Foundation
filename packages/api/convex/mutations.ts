@@ -757,14 +757,20 @@ export const triggerMining = mutation({
   },
 });
 
-export const mine = internalMutation({
-  handler: async ({ db }) => {
-    const config = await db.query("config").first();
 
-    const users = await db
-      .query("user")
-      .withIndex("by_mineActive", (q) => q.eq("mineActive", true))
-      .collect();
+export const getConfig = internalQuery({ args: {}, handler: async ({ db }) => db.query("config").first(), })
+export const getMiningUsers = internalQuery({
+  args: {}, handler: async ({ db }) => await db
+    .query("user")
+    .withIndex("by_mineActive", (q) => q.eq("mineActive", true))
+    .collect(),
+})
+
+export const mine = internalAction({
+  handler: async ({ runQuery, runMutation }) => {
+    const config = await runQuery(internal.mutations.getConfig);
+
+    const users = await runQuery(internal.mutations.getMiningUsers);
 
     if (!users.length) {
       return;
@@ -779,8 +785,12 @@ export const mine = internalMutation({
         },
       );
       if (currentMineHour < user.mineHours) {
-        await db.patch(user._id, {
-          redeemableCount: user.miningRate * currentMineHour,
+        await runMutation(internal.mutations.insertOrPatch, {
+          type: "patch",
+          patchId: user._id,
+          data: {
+            redeemableCount: user.miningRate * currentMineHour,
+          }
         });
       } else {
         // Cancel mine and reset also check for active boosts
@@ -794,18 +804,24 @@ export const mine = internalMutation({
 
         // console.log("Should stop the mining session");
 
-        await db.patch(user._id, {
-          mineActive: false,
-          boostStatus: persistBot ? [persistBot] : undefined,
-          mineHours: (config?.miningHours ?? 0) + (bot?.rate ?? 0),
-          miningRate: config?.miningCount,
-          redeemableCount: user.miningRate * currentMineHour,
+        await runMutation(internal.mutations.insertOrPatch, {
+          type: "patch",
+          patchId: user._id,
+          data: {
+            mineActive: false,
+            boostStatus: persistBot ? [persistBot] : undefined,
+            mineHours: (config?.miningHours ?? 0) + (bot?.rate ?? 0),
+            miningRate: config?.miningCount,
+            redeemableCount: user.miningRate * currentMineHour,
+          }
         });
 
 
-        // if (user?.tgUserId) {
-        //   await sendTGBotMessage(user?.tgUserId, `Your mining session has ended, Launch the app to claim your reward and start another session`);
-        // }
+        if (user?.tgUserId) {
+          await sendTGBotMessage(user?.tgUserId, `Your mining session has ended, Launch the app to claim your reward and start another session`)
+            .then((val) => console.log(val, ":::send tg bot msg"))
+            .catch((err) => console.log(err, ":::error sending tg bot notice"));
+        }
       }
     }
   },
@@ -899,11 +915,11 @@ export const deleteAdConfig = mutationWithAuth({
 });
 
 // Buy XP with Mined $FOUND
-export const buyXP = mutation({
+export const buyXP = action({
   args: { userId: v.id("user") },
-  handler: async ({ db }, { userId }) => {
-    const user = await db.get(userId);
-    const config = await db.query("config").first();
+  handler: async ({ runQuery, runMutation }, { userId }) => {
+    const user = await runQuery(internal.mutations.getUser, { userId });
+    const config = await runQuery(internal.mutations.getConfig);
     if (!user) {
       throw new ConvexError({
         message: "User not found",
@@ -935,22 +951,28 @@ export const buyXP = mutation({
     // Debit minedCount and credit xpCount amount
     const totalXpCount = user?.xpCount + xpAmountTopup;
     const multiplier = activateMultiplier(totalXpCount);
-    await db.patch(userId, {
-      minedCount: (user?.minedCount ?? 0) - (config?.minimumSaleToken ?? 0),
-      xpCount: totalXpCount,
-      multiplier: multiplier,
+    await runMutation(internal.mutations.insertOrPatch, {
+      type: "patch", patchId: userId, data: {
+        minedCount: (user?.minedCount ?? 0) - (config?.minimumSaleToken ?? 0),
+        xpCount: totalXpCount,
+        multiplier: multiplier,
+      }
     });
-    await db.insert("activity", {
-      userId: userId,
-      message: `You just purchased some XP`,
-      extra: xpAmountTopup.toLocaleString("en-US"),
-      type: "xp", // Can be xp and rank
+    await runMutation(internal.mutations.insertOrPatch, {
+      type: "insert", insertTableName: "activity", data: {
+        userId: userId,
+        message: `You just purchased some XP`,
+        extra: xpAmountTopup.toLocaleString("en-US"),
+        type: "xp", // Can be xp and rank
+      }
     });
 
 
-    // if (user?.tgUserId) {
-    //   await sendTGBotMessage(user?.tgUserId, `You just purchased some XP`);
-    // }
+    if (user?.tgUserId) {
+      await sendTGBotMessage(user?.tgUserId, `You just purchased some XP`)
+        .then((val) => console.log(val, ":::sent tg bot msg"))
+        .catch((err) => console.log(err, ":::error sending bot msg"));
+    }
 
   },
 });

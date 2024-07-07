@@ -11,7 +11,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useSession } from "@/lib/sessionContext";
 import { getErrorMsg } from "@/lib/utils";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 // import { FaDiscord, FaTelegramPlane } from "react-icons/fa";
 // import { FaCircleCheck, FaXTwitter } from "react-icons/fa6";
 // import { HiMiniUserGroup } from "react-icons/hi2";
@@ -64,7 +64,7 @@ const BoostItems: FC<{
   // Activate boost mutation
   const activateBoost = useMutation(api.mutations.activateBoost);
   // Buy XP
-  const buyXP = useMutation(api.mutations.buyXP);
+  const buyXP = useAction(api.mutations.buyXP);
 
   if (boosts) {
     return (
