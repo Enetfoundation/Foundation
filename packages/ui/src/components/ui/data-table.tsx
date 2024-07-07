@@ -61,6 +61,10 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  })
 
   const table = useReactTable({
     data,
@@ -68,19 +72,21 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: (!paginationControls || typeof paginationControls === "undefined")? getPaginationRowModel() : undefined,
+    getPaginationRowModel: (!paginationControls || typeof paginationControls === "undefined") ? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: (!paginationControls || typeof paginationControls === "undefined") ? undefined : setPagination,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      ...((!paginationControls || typeof paginationControls === "undefined") && { pagination })
     },
-    manualPagination:(!paginationControls || typeof paginationControls === "undefined")? false : true,
-    initialState: (!paginationControls || typeof paginationControls === "undefined")? undefined : {pagination: {pageIndex: 0, pageSize: 10}},
+    manualPagination: (!paginationControls || typeof paginationControls === "undefined") ? false : true,
+    initialState: (!paginationControls || typeof paginationControls === "undefined") ? undefined : { pagination: { pageIndex: 0, pageSize: 10 } },
     // autoResetPageIndex: (!paginationControls || typeof paginationControls === "undefined")? undefined : false
   });
 
@@ -136,9 +142,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -184,12 +190,16 @@ export function DataTable<TData, TValue>({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
+            onClick={() => {
+              table.previousPage();
+              setPagination((prev) => ({ pageIndex: prev.pageIndex !== 0 ? prev.pageIndex - 1 : 0, pageSize: 10 }));
+
+            }}
             disabled={!table.getCanPreviousPage()}
           >
             Previous
           </Button>
-{(!paginationControls || typeof paginationControls === "undefined")?          <Button
+          {(!paginationControls || typeof paginationControls === "undefined") ? <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
@@ -197,20 +207,21 @@ export function DataTable<TData, TValue>({
           >
             Next
           </Button>
-: (
-  <Button
-            variant="outline"
-            size="sm"
-            onClick={async () => {
-              table.nextPage();
-              paginationControls?.loadMore(10);
-            }}
-            disabled={paginationControls?.status !== "CanLoadMore"}
-          >
-            {paginationControls?.isLoading? "Fetching...." : "Next"}
-          </Button>
-)}        
-  </div>
+            : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  table.nextPage();
+                  paginationControls?.loadMore(10);
+                  setPagination((prev) => ({ pageIndex: prev.pageIndex + 1, pageSize: 10 }));
+                }}
+                disabled={paginationControls?.status !== "CanLoadMore"}
+              >
+                {paginationControls?.isLoading ? "Fetching...." : "Next"}
+              </Button>
+            )}
+        </div>
       </div>
     </div>
   );
