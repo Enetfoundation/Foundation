@@ -187,7 +187,7 @@ export function DataTable<TData, TValue>({
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className="space-x-2">
-          <Button
+{(!paginationControls || typeof paginationControls === "undefined") &&          <Button
             variant="outline"
             size="sm"
             onClick={() => {
@@ -199,7 +199,7 @@ export function DataTable<TData, TValue>({
           >
             Previous
           </Button>
-          {(!paginationControls || typeof paginationControls === "undefined") ? <Button
+}          {(!paginationControls || typeof paginationControls === "undefined") ? <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
@@ -218,7 +218,7 @@ export function DataTable<TData, TValue>({
                 }}
                 disabled={paginationControls?.status !== "CanLoadMore"}
               >
-                {paginationControls?.isLoading ? "Fetching...." : "Next"}
+                {paginationControls?.isLoading ? "Loading...." : "Load more items"}
               </Button>
             )}
         </div>
