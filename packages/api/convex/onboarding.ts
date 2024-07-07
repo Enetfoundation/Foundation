@@ -40,7 +40,7 @@ export const initializeNewUser = action({
       });
       // TG message
       if (result?.tgAlert) {
-        sendTGBotMessage(result?.tgAlert?.referree?.tgUserId!, `${result.tgAlert.tgUserObject.username ?? result.tgAlert.tgUserObject.first_name ?? result.tgAlert.tgUserObject.last_name} Joined using your referral code`)
+        await sendTGBotMessage(result?.tgAlert?.referree?.tgUserId!, `${result.tgAlert.tgUserObject.username ?? result.tgAlert.tgUserObject.first_name ?? result.tgAlert.tgUserObject.last_name} Joined using your referral code`)
           .then((val) => console.log(val, ":::TG BOT MSG SENT"))
           .catch((err) => console.log(":::TG BOT MSG FAILED"));
       }
