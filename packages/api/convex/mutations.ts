@@ -854,7 +854,7 @@ export const claimRewards = action({
         insertTableName: "activity",
         data: {
           userId: userId,
-          message: `You successfully redeemed your mined $FOUND token`,
+          message: `You successfully redeemed your mined $FOUND ${user?.redeemableCount} token`,
           extra: (user?.redeemableCount ?? 0).toLocaleString("en-US"),
           type: "rank", // Can be xp and rank
         }
@@ -862,7 +862,7 @@ export const claimRewards = action({
 
 
       if (user?.tgUserId) {
-        await sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`)
+        await sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND ${user?.redeemableCount} token`)
           .then((val) => console.log(val, ":::Tg Message sent"))
           .catch((err) => console.log(err, ":::Errir occurred sending TG message"));
       }

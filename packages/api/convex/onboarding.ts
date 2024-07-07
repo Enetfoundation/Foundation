@@ -46,9 +46,9 @@ export const initializeNewUser = action({
       }
 
       if (result?.tgAlert?.referree?.tgUserId && result.multiplier) {
-        sendTGBotMessage(result?.tgAlert?.referree?.tgUserId, `You got a multiplier of ${result?.multiplier}%`)
-        .then((val) => console.log(val, ":::"))
-        .catch((err) => console.log(err, ":::TG BOT MSG FAILED"));
+        await sendTGBotMessage(result?.tgAlert?.referree?.tgUserId, `You got a multiplier of ${result?.multiplier}%`)
+          .then((val) => console.log(val, ":::"))
+          .catch((err) => console.log(err, ":::TG BOT MSG FAILED"));
       }
 
 
