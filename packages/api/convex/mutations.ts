@@ -471,7 +471,7 @@ export const getUser = internalQuery({
 
 
 export const insertOrPatch = internalMutation({
-  args: { type: v.union(v.literal("insert"), v.literal("patch")), patchId: v.optional(v.any()), insertTableName: v.optional(v.any()), data: v.object({}) },
+  args: { type: v.union(v.literal("insert"), v.literal("patch")), patchId: v.optional(v.any()), insertTableName: v.optional(v.any()), data: v.any() },
   handler: async ({ db }, { type, patchId, insertTableName, data }) => {
     if (type === "patch" && patchId) {
       await db.patch(patchId, {
