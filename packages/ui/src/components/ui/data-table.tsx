@@ -83,7 +83,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
       rowSelection,
-      ...((!paginationControls || typeof paginationControls === "undefined") && { pagination })
+      pagination
     },
     manualPagination: (!paginationControls || typeof paginationControls === "undefined") ? false : true,
     initialState: (!paginationControls || typeof paginationControls === "undefined") ? undefined : { pagination: { pageIndex: 0, pageSize: 10 } },
