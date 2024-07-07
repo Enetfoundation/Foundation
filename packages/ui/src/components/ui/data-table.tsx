@@ -68,7 +68,7 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: (!paginationControls || typeof paginationControls === "undefined")? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -79,6 +79,9 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
     },
+    manualPagination:(!paginationControls || typeof paginationControls === "undefined")? false : true,
+    initialState: (!paginationControls || typeof paginationControls === "undefined")? undefined : {pagination: {pageIndex: 0, pageSize: 10}},
+    // autoResetPageIndex: (!paginationControls || typeof paginationControls === "undefined")? undefined : false
   });
 
   return (
@@ -186,7 +189,7 @@ export function DataTable<TData, TValue>({
           >
             Previous
           </Button>
-          <Button
+{(!paginationControls || typeof paginationControls === "undefined")?          <Button
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
@@ -194,7 +197,20 @@ export function DataTable<TData, TValue>({
           >
             Next
           </Button>
-        </div>
+: (
+  <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              table.nextPage();
+              paginationControls?.loadMore(10);
+            }}
+            disabled={paginationControls?.status !== "CanLoadMore"}
+          >
+            {paginationControls?.isLoading? "Fetching...." : "Next"}
+          </Button>
+)}        
+  </div>
       </div>
     </div>
   );
