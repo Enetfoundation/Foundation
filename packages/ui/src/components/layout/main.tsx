@@ -112,7 +112,7 @@ function SignedIn({ children }: { children: React.ReactNode }) {
               <CardContent>
                 <div className="text-2xl font-bold">
                   $EN{" "}
-                  {data ? data.totalMined.toLocaleString("en-US") : "45,231.89"}
+                  {data ? data.totalMined.toLocaleString("en-US") : "0"}{"+"}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Total $EN token mined
@@ -139,7 +139,7 @@ function SignedIn({ children }: { children: React.ReactNode }) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  +{data ? data.totalReferrals.toLocaleString("en-US") : "2350"}
+                  {data ? data.totalReferrals.toLocaleString("en-US") : "2350"}+
                 </div>
                 <p className="text-xs text-muted-foreground">
                   All time referrals
@@ -165,7 +165,7 @@ function SignedIn({ children }: { children: React.ReactNode }) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  +{data ? data.totalXp.toLocaleString("en-US") : "12,234"}
+                  {data ? data.totalXp.toLocaleString("en-US") : "12,234"}+
                 </div>
                 <p className="text-xs text-muted-foreground">Total XP earned</p>
               </CardContent>
@@ -188,7 +188,7 @@ function SignedIn({ children }: { children: React.ReactNode }) {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  +{data ? data.totalUsers.toLocaleString("en-US") : "573"}
+                  {data ? data.totalUsers.toLocaleString("en-US") : "573"}+
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Total users onboarded

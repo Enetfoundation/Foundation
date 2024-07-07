@@ -225,33 +225,21 @@ export const deleteCompany = mutationWithAuth({
 export const updateUserStats = internalAction({
   args: {},
   handler: async ({ runQuery, runMutation }) => {
-    let isDone = false;
+    const { stats, users} = await runQuery(internal.adminQueries.getUsers);
 
-    while (!isDone) {
-      const { stats, userList } = await runQuery(internal.adminQueries.getUsers, { paginationOpts: { numItems: 5000, maximumRowsRead: 5000, cursor: null } });
+    // Filter and extract
+    const totalMined = users.reduce((c, obj) => c + (obj.minedCount ?? 0), 0);
+    const totalXp = users.reduce((c, obj) => c + (obj.xpCount ?? 0), 0);
+    const totalReferrals = users.reduce(
+      (c, obj) => c + (obj.referralCount ?? 0),
+      0
+    );
+    const totalUsers = users.length ?? 0;
+    // const recentUsers = users.slice(0, 5) ?? 0;
 
-      const users = userList.page;
-      // Filter and extract
-      const totalMined = users.reduce((c, obj) => c + (obj.minedCount ?? 0), 0);
-      const totalXp = users.reduce((c, obj) => c + (obj.xpCount ?? 0), 0);
-      const totalReferrals = users.reduce(
-        (c, obj) => c + (obj.referralCount ?? 0),
-        0
-      );
-      const totalUsers = users.length ?? 0;
-      // const recentUsers = users.slice(0, 5) ?? 0;
-
-      if (stats) {
-        await runMutation(internal.adminMutations.updateStats, { id: stats._id, data: { totalMined, totalReferrals, totalUsers, totalXp } });
-      }
-
-
-      if(userList.isDone) {
-        isDone = true;
-      }
-
+    if (stats) {
+      await runMutation(internal.adminMutations.updateStats, { id: stats._id, data: { totalMined, totalReferrals, totalUsers, totalXp } });
     }
-
   }
 });
 

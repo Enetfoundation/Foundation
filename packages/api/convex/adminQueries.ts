@@ -22,13 +22,13 @@ export const fetchUsers = query({
 
 
 export const getUsers = internalQuery({
-  args: {paginationOpts: paginationOptsValidator},
+  args: {},
   handler: async ({ db }, args) => {
     const stats = await db.query("userStats").first();
-    const userList = await db.query("user")
+    const users = await db.query("user")
       .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
-      .paginate(args.paginationOpts);
-    return { stats, userList };
+      .take(5000);
+    return { stats, users };
   }
 });
 
