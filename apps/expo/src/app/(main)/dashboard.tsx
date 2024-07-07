@@ -800,7 +800,7 @@ export default function DashboardPage() {
                     totalUsers={userDetail?.referralXp ?? 0}
                     referrals={userDetail?.referralCount ?? 0}
                     referralCode={userDetail?.referralCode ?? "REFCOD"}
-                    globalRank={userDetail?.globalRank ?? 1000}
+                    globalRank={0}
                   />
                 </View>
 

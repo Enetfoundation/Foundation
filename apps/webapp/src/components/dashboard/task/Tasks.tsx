@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { useSession } from "@/lib/sessionContext";
 import { delay } from "@/lib/utils";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { FaDiscord, FaTelegramPlane } from "react-icons/fa";
 import { FaCircleCheck, FaXTwitter } from "react-icons/fa6";
 import { HiMiniUserGroup } from "react-icons/hi2";
@@ -52,7 +52,7 @@ const TaskItems: FC<{ tasks: Doc<"tasks">[] | undefined; userDetails: Doc<"user"
   const isClient = useClient();
 
   // Collect task reward
-  const collectReward = useMutation(api.mutations.rewardTaskXp);
+  const collectReward = useAction(api.mutations.rewardTaskXp);
 
   if (tasks && tasks?.length) {
     return (

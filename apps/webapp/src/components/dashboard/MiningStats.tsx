@@ -2,7 +2,7 @@
 
 import React, { FC, useEffect, useRef } from "react";
 import { useSession } from "@/lib/sessionContext";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation } from "convex/react";
 import { BiCoinStack } from "react-icons/bi";
 
 import { api } from "@acme/api/convex/_generated/api";
@@ -30,7 +30,7 @@ const MiningStats: FC<Mining> = ({ mined, mining, mineHours, time, rate, userId,
   // Call start miner function
   const triggerMiner = useMutation(api.mutations.triggerMining);
   // claim mine reward
-  const claimReward = useMutation(api.mutations.claimRewards);
+  const claimReward = useAction(api.mutations.claimRewards);
 
 
   const adRef = useRef(null);

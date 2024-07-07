@@ -8,6 +8,8 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { action, internalAction, internalMutation, mutation } from "./_generated/server";
 import { activateMultiplier } from "./mutations";
+import { sendTGBotMessage } from "../utils";
+
 // import { sendTGBotMessage } from "../utils/index";
 
 // Random OTP code
@@ -16,7 +18,6 @@ const generateOTPCode = customAlphabet("0123456789", 6);
 export const initializeNewUser = action({
   args: { email: v.optional(v.string()), referreeCode: v.optional(v.string()), type: v.optional(v.union(v.literal("tg"), v.literal("twitter"), v.literal("google"))), tgInitData: v.optional(v.string()) },
   handler: async (ctx, args): Promise<string> => {
-
     if (!args.type && !args.tgInitData && args.email) {
       const userId: Id<"user"> = await ctx.runMutation(
         internal.mutations.storeEmail,
@@ -30,12 +31,28 @@ export const initializeNewUser = action({
 
     } else {
 
-      const userId: Id<"user"> = await ctx.runMutation(internal.mutations.storeTgDetails, {
+
+      // entry for new user
+      const result = await ctx.runMutation(internal.mutations.storeTgDetails, {
         type: args.type!,
         tgInitData: args.tgInitData!,
         referreCode: args.referreeCode,
       });
-      return userId;
+      // TG message
+      if (result?.tgAlert) {
+        sendTGBotMessage(result?.tgAlert?.referree?.tgUserId!, `${result.tgAlert.tgUserObject.username ?? result.tgAlert.tgUserObject.first_name ?? result.tgAlert.tgUserObject.last_name} Joined using your referral code`)
+          .then((val) => console.log(val, ":::TG BOT MSG SENT"))
+          .catch((err) => console.log(":::TG BOT MSG FAILED"));
+      }
+
+      if (result?.tgAlert?.referree?.tgUserId && result.multiplier) {
+        sendTGBotMessage(result?.tgAlert?.referree?.tgUserId, `You got a multiplier of ${result?.multiplier}%`)
+        .then((val) => console.log(val, ":::"))
+        .catch((err) => console.log(err, ":::TG BOT MSG FAILED"));
+      }
+
+
+      return result.userId;
 
     }
     // DONE:✅ Create OTP
@@ -470,7 +487,7 @@ export const isNicknameValid = mutation({
   handler: async (ctx, { nickname }) => {
     // Check if the email already exists in the user table
 
-    const users = await ctx.db.query("user").withIndex("by_nickname", q => q.eq("nickname" ,nickname)).collect();
+    const users = await ctx.db.query("user").withIndex("by_nickname", q => q.eq("nickname", nickname)).collect();
 
     if (!users.length) return true;
 

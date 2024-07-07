@@ -6,12 +6,15 @@ import { customAlphabet } from "nanoid";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import {
+  action,
   internalAction,
   internalMutation,
+  internalQuery,
   mutation,
 } from "./_generated/server";
+import { tuple } from "zod";
+import { sendTGBotMessage } from "../utils";
 // import { decodeURLString } from "./onboarding";
-// import { sendTGBotMessage } from "../utils";
 
 export const storeEmail = internalMutation({
   args: { email: v.optional(v.string()), referreeCode: v.optional(v.string()) },
@@ -210,15 +213,15 @@ export const storeTgDetails = internalMutation({
           extra: `${multiplier}%`,
           type: "xp", // Can be xp and rank
         });
-        // TG message
-        // if (referree?.tgUserId) {
-        //   await sendTGBotMessage(referree?.tgUserId, `You got a multiplier of ${multiplier}%`);
-        // }
+
+
+        return { userId, multiplier, tgAlert: { referree, tgUserObject } };
       }
+      return { userId, tgAlert: { referree, tgUserObject } };
     }
 
 
-    return userId;
+    return { userId };
   },
 
 });
@@ -401,11 +404,11 @@ export const weeklyLeaderBoardCheck = internalAction({
 });
 
 // Reward with xp for tasks
-export const rewardTaskXp = mutation({
+export const rewardTaskXp = action({
   args: { xpCount: v.number(), userId: v.id("user"), taskId: v.id("tasks") },
-  handler: async ({ db }, { xpCount, userId, taskId }) => {
+  handler: async ({ runMutation, runQuery }, { xpCount, userId, taskId }) => {
     // Reward user for task or events completed
-    const user = await db.get(userId);
+    const user = await runQuery(internal.mutations.getUser, { userId });
 
     if (!user) {
       throw new ConvexError({
@@ -424,31 +427,70 @@ export const rewardTaskXp = mutation({
       (user?.referralXp ?? 0);
     const multiplier = activateMultiplier(totalXpCount);
 
-    await db.patch(userId, {
-      claimedXp: (user?.claimedXp ?? 0) + xpCount + currentMultiEffectReward,
-      completedTasks: user.completedTasks
-        ? [...user.completedTasks, taskId]
-        : [taskId],
-      xpCount: totalXpCount,
-      multiplier,
+    await runMutation(internal.mutations.insertOrPatch, {
+      type: "patch",
+      patchId: userId,
+      data: {
+        claimedXp: (user?.claimedXp ?? 0) + xpCount + currentMultiEffectReward,
+        completedTasks: user.completedTasks
+          ? [...user.completedTasks, taskId]
+          : [taskId],
+        xpCount: totalXpCount,
+        multiplier,
+      }
     });
 
     // Add multiplier activity
     if (multiplier) {
-      await db.insert("activity", {
-        userId: userId,
-        message: `You got a multiplier of ${multiplier}%`,
-        extra: `${multiplier}%`,
-        type: "xp", // Can be xp and rank
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "insert",
+        insertTableName: "activity",
+        data: {
+          userId: userId,
+          message: `You got a multiplier of ${multiplier}%`,
+          extra: `${multiplier}%`,
+          type: "xp", // Can be xp and rank
+        }
       });
 
 
-      // if (user?.tgUserId) {
-      //   await sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`);
-      // }
+      if (user?.tgUserId) {
+        sendTGBotMessage(user?.tgUserId, `You got a multiplier of ${multiplier}%`)
+          .then((val) => console.log(val, ":::sent tg msg"))
+          .catch((err) => console.log(err, ":::error sending tg msg"));
+      }
     }
   },
 });
+
+
+export const getUser = internalQuery({
+  args: { userId: v.id("user") },
+  handler: async ({ db }, args) => await db.get(args.userId),
+})
+
+
+export const insertOrPatch = internalMutation({
+  args: { type: v.union(v.literal("insert"), v.literal("patch")), patchId: v.optional(v.any()), insertTableName: v.optional(v.any()), data: v.object({}) },
+  handler: async ({ db }, { type, patchId, insertTableName, data }) => {
+    if (type === "patch" && patchId) {
+      await db.patch(patchId, {
+        ...data,
+      });
+
+    } else if (type === "insert" && insertTableName) {
+      await db.insert(insertTableName, {
+        ...data
+      });
+    } else {
+      throw new ConvexError({
+        message: "Could not update or insert doc",
+        code: "500",
+        status: "failed"
+      })
+    }
+  }
+})
 
 // Reward after event actions have been completed
 export const rewardEventXp = mutation({
@@ -770,10 +812,24 @@ export const mine = internalMutation({
 });
 
 // claim redeemable amount: reset and increment minedCount
-export const claimRewards = mutation({
+export const claimRewards = action({
   args: { userId: v.id("user") },
-  handler: async ({ db }, { userId }) => {
-    const user = await db.get(userId);
+  handler: async ({ runQuery, runMutation }, { userId }) => {
+    try {
+
+    } catch (err: any) {
+      console.log(err, ":::Error in claimrewards");
+      if (err instanceof ConvexError) {
+        throw err;
+      } else {
+        throw new ConvexError({
+          message: "Something went wrong, please try again",
+          code: "INTERNAL_SERVER",
+          status: "failed"
+        })
+      }
+    }
+    const user = await runQuery(internal.mutations.getUser, { userId });
     if (!user) {
       throw new ConvexError({
         message: "No user with that Id",
@@ -784,22 +840,32 @@ export const claimRewards = mutation({
 
     // Check if mine is inActive and if redeemableCount is greater than 0
     if (!user?.mineActive && user?.redeemableCount > 0) {
-      await db.patch(userId, {
-        minedCount: (user?.minedCount ?? 0) + user?.redeemableCount,
-        redeemableCount: 0,
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "patch",
+        patchId: userId,
+        data: {
+          minedCount: (user?.minedCount ?? 0) + user?.redeemableCount,
+          redeemableCount: 0,
+        }
       });
 
-      await db.insert("activity", {
-        userId: userId,
-        message: `You successfully redeemed your mined $FOUND token`,
-        extra: (user?.redeemableCount ?? 0).toLocaleString("en-US"),
-        type: "rank", // Can be xp and rank
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "insert",
+        insertTableName: "activity",
+        data: {
+          userId: userId,
+          message: `You successfully redeemed your mined $FOUND token`,
+          extra: (user?.redeemableCount ?? 0).toLocaleString("en-US"),
+          type: "rank", // Can be xp and rank
+        }
       });
 
 
-      // if (user?.tgUserId) {
-      //   await sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`);
-      // }
+      if (user?.tgUserId) {
+        sendTGBotMessage(user?.tgUserId, `You successfully redeemed your mined $FOUND token`)
+          .then((val) => console.log(val, ":::Tg Message sent"))
+          .catch((err) => console.log(err, ":::Errir occurred sending TG message"));
+      }
 
     }
   },
@@ -1089,7 +1155,7 @@ export const reshuffleRank = internalMutation({
       const userIndex = sortedUsers.findIndex((u) => u._id === user?._id);
       const rank = userIndex < 0 ? 50 : userIndex + 1;
 
-      await db.patch(user?._id, {rank});
+      await db.patch(user?._id, { rank });
 
     }
 
