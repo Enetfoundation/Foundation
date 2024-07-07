@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
       pagination
     },
     manualPagination: (!paginationControls || typeof paginationControls === "undefined") ? false : true,
-    initialState: (!paginationControls || typeof paginationControls === "undefined") ? undefined : { pagination: { pageIndex: 0, pageSize: 10 } },
+    // initialState: (!paginationControls || typeof paginationControls === "undefined") ? undefined : { pagination: { pageIndex: 0, pageSize: 10 } },
     // autoResetPageIndex: (!paginationControls || typeof paginationControls === "undefined")? undefined : false
   });
 
@@ -192,7 +192,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => {
               table.previousPage();
-              setPagination((prev) => ({ pageIndex: prev.pageIndex !== 0 ? prev.pageIndex - 1 : 0, pageSize: 10 }));
+              // setPagination((prev) => ({ pageIndex: prev.pageIndex !== 0 ? prev.pageIndex - 1 : 0, pageSize: 10 }));
 
             }}
             disabled={!table.getCanPreviousPage()}
@@ -214,7 +214,7 @@ export function DataTable<TData, TValue>({
                 onClick={async () => {
                   table.nextPage();
                   paginationControls?.loadMore(10);
-                  setPagination((prev) => ({ pageIndex: prev.pageIndex + 1, pageSize: 10 }));
+                  // setPagination((prev) => ({ pageIndex: prev.pageIndex + 1, pageSize: 10 }));
                 }}
                 disabled={paginationControls?.status !== "CanLoadMore"}
               >
