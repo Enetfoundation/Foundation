@@ -1,7 +1,7 @@
 import { queryWithAuth } from "@convex-dev/convex-lucia-auth";
 import { Id, Doc } from "./_generated/dataModel";
 import { paginationOptsValidator } from "convex/server";
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 
 export const dashboardData = queryWithAuth({
   args: {},
@@ -19,6 +19,19 @@ export const fetchUsers = query({
       .paginate(args.paginationOpts);
   },
 });
+
+
+export const getUsers = internalQuery({
+  args: {paginationOpts: paginationOptsValidator},
+  handler: async ({ db }, args) => {
+    const stats = await db.query("userStats").first();
+    const userList = await db.query("user")
+      .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
+      .paginate(args.paginationOpts);
+    return { stats, userList };
+  }
+});
+
 
 // Tasks
 export const fetchTasks = queryWithAuth({

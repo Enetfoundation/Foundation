@@ -225,20 +225,31 @@ export const deleteCompany = mutationWithAuth({
 export const updateUserStats = internalAction({
   args: {},
   handler: async ({ runQuery, runMutation }) => {
-    const { stats, users } = await runQuery(internal.adminMutations.getUsers);
+    let isDone = false;
 
-    // Filter and extract
-    const totalMined = users.reduce((c, obj) => c + (obj.minedCount ?? 0), 0);
-    const totalXp = users.reduce((c, obj) => c + (obj.xpCount ?? 0), 0);
-    const totalReferrals = users.reduce(
-      (c, obj) => c + (obj.referralCount ?? 0),
-      0
-    );
-    const totalUsers = users.length ?? 0;
-    // const recentUsers = users.slice(0, 5) ?? 0;
+    while (!isDone) {
+      const { stats, userList } = await runQuery(internal.adminQueries.getUsers, { paginationOpts: { numItems: 5000, maximumRowsRead: 5000, cursor: null } });
 
-    if (stats) {
-      runMutation(internal.adminMutations.updateStats, { id: stats._id, data: { totalMined, totalReferrals, totalUsers, totalXp } });
+      const users = userList.page;
+      // Filter and extract
+      const totalMined = users.reduce((c, obj) => c + (obj.minedCount ?? 0), 0);
+      const totalXp = users.reduce((c, obj) => c + (obj.xpCount ?? 0), 0);
+      const totalReferrals = users.reduce(
+        (c, obj) => c + (obj.referralCount ?? 0),
+        0
+      );
+      const totalUsers = users.length ?? 0;
+      // const recentUsers = users.slice(0, 5) ?? 0;
+
+      if (stats) {
+        await runMutation(internal.adminMutations.updateStats, { id: stats._id, data: { totalMined, totalReferrals, totalUsers, totalXp } });
+      }
+
+
+      if(userList.isDone) {
+        isDone = true;
+      }
+
     }
 
   }
@@ -251,18 +262,6 @@ export const updateStats = internalMutation({
     if (args.id) {
       await db.patch(args.id, { ...args.data });
     }
-  }
-});
-
-
-export const getUsers = internalQuery({
-  args: {},
-  handler: async ({ db }) => {
-    const stats = await db.query("userStats").first();
-    const users: Doc<"user">[] = await db.query("user")
-      .withIndex("by_deleted", (q: any) => q.eq("deleted", false))
-      .order("asc").collect();
-    return { stats, users };
   }
 });
 
