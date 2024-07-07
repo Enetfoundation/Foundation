@@ -62,7 +62,7 @@ const BoostItems: FC<{
   const user = userDetails;
 
   // Activate boost mutation
-  const activateBoost = useMutation(api.mutations.activateBoost);
+  const activateBoost = useAction(api.mutations.activateBoost);
   // Buy XP
   const buyXP = useAction(api.mutations.buyXP);
 

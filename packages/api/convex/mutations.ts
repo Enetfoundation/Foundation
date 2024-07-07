@@ -978,7 +978,7 @@ export const buyXP = action({
 });
 
 // Boost
-export const activateBoost = mutation({
+export const activateBoost = action({
   args: {
     userId: v.id("user"),
     boost: v.object({
@@ -990,8 +990,8 @@ export const activateBoost = mutation({
       totalLevel: v.optional(v.number()),
     }),
   },
-  handler: async ({ db }, { userId, boost }) => {
-    const user = await db.get(userId);
+  handler: async ({ runQuery, runMutation }, { userId, boost }) => {
+    const user = await runQuery(internal.mutations.getUser, { userId });
 
     if (!user) {
       throw new ConvexError({
@@ -1010,7 +1010,7 @@ export const activateBoost = mutation({
     }
 
     // Update users mining configs
-    const config = await db.query("config").first();
+    const config = await runQuery(internal.mutations.getConfig);
 
     if (!config) {
       throw new ConvexError({
@@ -1040,26 +1040,32 @@ export const activateBoost = mutation({
 
     // Check if boost type is bot, activate and add to user boostStatus
     if (boost?.type === "bot") {
-      await db.patch(userId, {
-        xpCount: user?.xpCount - boost?.xpCost,
-        mineHours: config.miningHours + boost.rate,
-        boostStatus: user?.boostStatus
-          ? [
-            ...(user?.boostStatus ?? []),
-            { boostId: boost?.uuid, isActive: true },
-          ]
-          : [{ boostId: boost?.uuid, isActive: true }],
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "patch", patchId: userId, data: {
+          xpCount: user?.xpCount - boost?.xpCost,
+          mineHours: config.miningHours + boost.rate,
+          boostStatus: user?.boostStatus
+            ? [
+              ...(user?.boostStatus ?? []),
+              { boostId: boost?.uuid, isActive: true },
+            ]
+            : [{ boostId: boost?.uuid, isActive: true }],
+        }
       });
 
-      await db.insert("activity", {
-        userId: userId,
-        message: `You activated bot boost`,
-        type: "rank", // Can be xp and rank
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "insert", insertTableName: "activity", data: {
+          userId: userId,
+          message: `You activated bot boost`,
+          type: "rank", // Can be xp and rank
+        }
       });
 
-      // if (user?.tgUserId) {
-      //   await sendTGBotMessage(user?.tgUserId, `You activated bot boost`);
-      // }
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You activated bot boost`)
+          .then((val) => console.log(val, ":::send tg bot success"))
+          .catch((err) => console.log(err, ":::error sending bot msg"));
+      }
     } else {
       // If type is speed
       // for speed boosts multiply the initial xpCost by 2 and and increase the users currentLevel
@@ -1091,67 +1097,77 @@ export const activateBoost = mutation({
         );
 
         if (affected) {
-          await db.patch(userId, {
-            xpCount: user?.xpCount - (affected?.currentXpCost ?? 0),
-            ...(boost?.type === "rate"
-              ? { miningRate: user?.miningRate + boost?.rate }
-              : { mineHours: user?.mineHours + boost?.rate }),
-            boostStatus: [
-              ...unaffected,
-              {
-                ...affected,
-                currentXpCost: affected.currentXpCost! * 2,
-                currentLevel: affected.currentLevel! + 1,
-              },
-            ],
+          await runMutation(internal.mutations.insertOrPatch, {
+            type: "patch", patchId: userId, data: {
+              xpCount: user?.xpCount - (affected?.currentXpCost ?? 0),
+              ...(boost?.type === "rate"
+                ? { miningRate: user?.miningRate + boost?.rate }
+                : { mineHours: user?.mineHours + boost?.rate }),
+              boostStatus: [
+                ...unaffected,
+                {
+                  ...affected,
+                  currentXpCost: affected.currentXpCost! * 2,
+                  currentLevel: affected.currentLevel! + 1,
+                },
+              ],
+            }
           });
 
           return;
         } else {
-          await db.patch(userId, {
-            xpCount: user?.xpCount - boost?.xpCost,
-            ...(boost?.type === "rate"
-              ? { miningRate: user?.miningRate + boost?.rate }
-              : { mineHours: user?.mineHours + boost?.rate }),
-            boostStatus: [
-              ...unaffected,
-              {
-                boostId: boost?.uuid,
-                isActive: true,
-                currentLevel: 1,
-                currentXpCost: boost?.xpCost * 2,
-              },
-            ],
+          await runMutation(internal.mutations.insertOrPatch, {
+            type: "patch", patchId: userId, data: {
+              xpCount: user?.xpCount - boost?.xpCost,
+              ...(boost?.type === "rate"
+                ? { miningRate: user?.miningRate + boost?.rate }
+                : { mineHours: user?.mineHours + boost?.rate }),
+              boostStatus: [
+                ...unaffected,
+                {
+                  boostId: boost?.uuid,
+                  isActive: true,
+                  currentLevel: 1,
+                  currentXpCost: boost?.xpCost * 2,
+                },
+              ],
+            }
           });
 
           return;
         }
       }
 
-      await db.patch(userId, {
-        xpCount: user?.xpCount - boost?.xpCost,
-        ...(boost?.type === "rate"
-          ? { miningRate: user?.miningRate + boost?.rate }
-          : { mineHours: user?.mineHours + boost?.rate }),
-        boostStatus: [
-          {
-            boostId: boost?.uuid,
-            isActive: true,
-            currentLevel: 1,
-            currentXpCost: boost?.xpCost * 2,
-          },
-        ],
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "patch", patchId: userId, data: {
+          xpCount: user?.xpCount - boost?.xpCost,
+          ...(boost?.type === "rate"
+            ? { miningRate: user?.miningRate + boost?.rate }
+            : { mineHours: user?.mineHours + boost?.rate }),
+          boostStatus: [
+            {
+              boostId: boost?.uuid,
+              isActive: true,
+              currentLevel: 1,
+              currentXpCost: boost?.xpCost * 2,
+            },
+          ],
+        }
       });
 
-      await db.insert("activity", {
-        userId: userId,
-        message: `You activated rate/duration boost`,
-        type: "rank", // Can be xp and rank
+      await runMutation(internal.mutations.insertOrPatch, {
+        type: "insert", insertTableName: "activity", data: {
+          userId: userId,
+          message: `You activated rate/duration boost`,
+          type: "rank", // Can be xp and rank
+        }
       });
 
-      // if (user?.tgUserId) {
-      //   await sendTGBotMessage(user?.tgUserId, `You activated rate/duration boost`);
-      // }
+      if (user?.tgUserId) {
+        await sendTGBotMessage(user?.tgUserId, `You activated rate/duration boost`)
+          .then((val) => console.log(val, ":::sent tg bot"))
+          .catch((err) => console.log(err, ":::error sending tg msg"));
+      }
 
     }
   },
